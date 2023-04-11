@@ -51,6 +51,7 @@ python main_script_download.py
 
 # Run MicroLife
 
+## Clustering module
 ### - Install conda environments for MicroLife
 
 ```
@@ -72,7 +73,7 @@ This script changes the name of the input genome files by replacing the strain n
 I.e Pseudomonas_fluorescens_FDAARGOS-1088.fna --> Pseudomonas_fluorescens_X0001.fna \
 The file "names_equivalence.txt" contains the correspondent name matching.
 
-### - Run MicroLife
+### - Run MicroLife clustering module
 MicroLife is written using the snakemake workflow manager and it can be executed using the following command from the main directory
 
 ```
@@ -88,7 +89,7 @@ You can find an example of the mapping file in the main folder. It consists of a
 
 MEGAMATRIX.txt: This file is the main output of MicroLife and consists in a matrix where each row represent one gene cluster and each column represent the presence of these clusters in the different genomes and its annotation in different databases
 
-# Lifestyle prediction module
+# microLife Lifestyle prediction module
 User can test the predictability of their metadata with the machine learning model random forest using the script 'src/classifier_evaluation.R'
 
 ```
