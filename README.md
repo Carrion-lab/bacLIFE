@@ -16,7 +16,7 @@ conda activate MicroLife_download
 ### - Download the accession names 
 Get a list of accesion ids we are interested (i.e All Mycobacterium RefSeq genomes) by extracting the SQL query from NCBI website search and copying it in the following command
 
-![exmaple_ncbi](uploads/e12155e3fb809e3103ab49440cc46a85/exmaple_ncbi.png)
+![alt text](https://github.com/Carrion-lab/microLife/image/screenshot.jpg?raw=true)
 
 ```
 esearch -db assembly -query '("Mycobacterium"[Organism] OR Mycobacterium[All Fields]) AND ("latest refseq"[filter] AND all[filter] NOT anomalous[filter])' | esummary | xtract -pattern         DocumentSummary -element AssemblyAccession > NCBI_accs.txt
