@@ -1,0 +1,8 @@
+name: antismash_microlife
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - antismash==5.1.2
+  - biopython==1.77
+  - numpy==1.19.4

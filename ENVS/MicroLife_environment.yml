@@ -1,0 +1,37 @@
+name: MicroLife_environment
+channels:
+    - conda-forge
+    - bioconda
+    - r
+    - defaults
+dependencies:
+    - bioconductor-genomeinfodbdata=1.2.7
+    - blast
+    - snakemake
+    - scipy
+    - biopython
+    - diamond
+    - prokka=1.14.6
+    - bioawk
+    - perl-bioperl
+    - mmseqs2
+    - tbl2asn
+    - hmmer==3.1b2
+    - mcl
+    - bioconductor-biostrings
+    - r-proc
+    - r-readr
+    - r-stringr
+    - r-upsetr  
+    - r-dplyr
+    - r-base
+    - r-splitstackshape
+    - r-reshape2
+    - r-tidyverse
+    - r-plyr
+    - r-gtools
+    - r-data.table
+    - r-randomforest
+    - phylophlan
+    - eggnog-mapper
+

@@ -1,0 +1,10 @@
+#Code to download all the genomes from Mycobacterium genus
+
+#tutorial
+https://astrobiomike.github.io/unix/ncbi_eutils
+
+esearch -db assembly -query '("Mycobacterium"[Organism] OR Mycobacterium[All Fields]) AND ("latest refseq"[filter] AND all[filter] NOT anomalous[filter])' | esummary | xtract -pattern         DocumentSummary -element AssemblyAccession > Mycobacterium-assembly-accs.txt
+
+bit-dl-ncbi-assemblies -w ../Mycobacterium-assembly-accs.txt -f fasta -j 10
+
+gzip -d genomes/*.gz

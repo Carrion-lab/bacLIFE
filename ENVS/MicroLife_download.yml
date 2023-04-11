@@ -1,0 +1,20 @@
+name: MicroLife_download
+channels:
+    - conda-forge
+    - bioconda
+    - r
+    - defaults
+    - astrobiomike
+dependencies:
+    - astrobiomike::bit
+    - entrez-direct
+    - biopython
+    - bioawk
+    - mash
+    - r-dplyr
+    - r-base
+    - r-igraph
+    - r-data.table
+    - r-stringr
+    - ncbi-datasets-cli
+
