@@ -4,7 +4,7 @@
 # Download MicroLife
 
 ```
- git clone --branch MicroLife2.2  https://github.com/Carrion-lab/microLife.git <your comparative project name>
+ git clone MicroLife2.2  https://github.com/Carrion-lab/microLife.git <your comparative project name>
 ```
 
 
