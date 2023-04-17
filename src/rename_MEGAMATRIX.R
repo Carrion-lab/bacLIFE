@@ -27,7 +27,7 @@ write.table(matrix, args[4], row.names = F)
 big_scape_matrix <- read.table(args[2], header = T)
 
 
-old_colnames <- data.frame(MicroLife_name = colnames(big_scape_matrix)[2:(ncol(big_scape_matrix) - 1)] ) 
+old_colnames <- data.frame(MicroLife_name = colnames(big_scape_matrix) ) 
 
 M <- merge(old_colnames, names_equivalence, by = 'MicroLife_name')
 
