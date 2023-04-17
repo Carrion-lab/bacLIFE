@@ -75,10 +75,6 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                                                        tabPanel('PCA',
                                                                 tags$label(h3('PCA plot')),
                                                                 plotlyOutput(outputId = "PCAplotBGC",width = '800px',height = '500px')),
-                                                       tabPanel('Dendogram',
-                                                                tags$label(h3('Dendogram')),
-                                                                plotOutput(outputId = "dendogramaBGC",width = '1000px',height = '1000px')
-                                                       ),
                                                        tabPanel('BGCs Heatmap',
                                                                 h1("Biosynthetic Gene Clusters"),
                                                                 selectInput('bgcheatmap_column', label = 'Side Column color:', choices = mapping_options),
@@ -475,25 +471,6 @@ server <- function(input, output){
     p
   })
   
-  
-  output$dendogramaBGC <- renderPlot({
-    hc <- GCF_dend
-    dend <- as.phylo(hc)
-    groups <- mapping_file
-    rownames(groups) <- groups$Sample
-    groups <- groups[dend$tip.label,]
-    cols <- assign_colors(groups[,input$PCA_color])
-    unique_values <- unique(groups[,input$PCA_color])
-    unique_colors <- glasbey(n= length(unique_values))
-    
-    plot(dend , type = "fan", tip.color = cols, label.offset = 1, cex = 0.3)
-    
-    legend("topright",
-           legend = unique_values,
-           fill = unique_colors,       # Color of the squares
-           border = "black") # Color of the border of the squares
-  })
-  
   output$dendograma <- renderPlot({
     hc <- explorative_dendogram()
     dend <- as.phylo(hc)
@@ -880,6 +857,10 @@ server <- function(input, output){
 }
 # Run the app ----
 shinyApp(ui = ui, server = server)
+
+
+
+
 
 
 
