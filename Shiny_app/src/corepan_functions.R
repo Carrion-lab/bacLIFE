@@ -32,7 +32,7 @@ extract_sequences_fasta <- function(matrix, all_proteins, db, bacteria, id, name
   #names_equivalence = read.table('names_equivalence.txt', header = T)
   names_equivalence$MicroLife_name = str_remove(names_equivalence$MicroLife_name, '_O.fna')
   names_equivalence$Full_name = str_remove(names_equivalence$Full_name, '_O.fna')
-
+  
   gene_list = character()
   for (i in 1:nrow(extract_genes)){
     gene_list = paste0(gene_list,extract_genes$descriptions[i] )
@@ -56,7 +56,11 @@ extract_sequences_fasta <- function(matrix, all_proteins, db, bacteria, id, name
   filename = paste0('fasta_sequences/fasta_extract_', id, '_', bacteria, '.fasta')
   ape::write.FASTA(to_extract, filename)
   
-  return(filename)
+  ####NEW###
+  return_list = list(filename, to_extract)
+    
+  ########
+  return(return_list)
 }
 
 
@@ -173,7 +177,7 @@ cog_groups <- function(cog_agg_matrix, cog_extended_annotations, mapping_file, c
 }
 
 ###Get cog hierarchy of all cd-hit clusters in % values
-cog_groups_percent <- function(cog_agg_matrix, cog_extended_annotations, mapping_file, column, process){
+cog_groups_percent <- function(cog_agg_matrix, cog_extended_annotations, mapping_file, column, process, df_colors){
   y_limit <- max(colSums(cog_agg_matrix[,2:ncol(cog_agg_matrix)]))
   M <- merge(cog_agg_matrix, cog_extended_annotations, by = 'id')
   n_samples <- grep("general", colnames(M)) -2
@@ -215,7 +219,7 @@ cog_groups_percent <- function(cog_agg_matrix, cog_extended_annotations, mapping
 }
 
 
-cog_core_groups <- function(matrix, input, cog_extended_annotations, process){
+cog_core_groups <- function(matrix, input, cog_extended_annotations, process, n_samples, df_colors){
   lista <- list()
   for ( i in names(input)){
     df <- data.frame(id= input[[i]], count = 1 )
@@ -626,5 +630,7 @@ network_cytoscape <- function(tree, mapping_file, column, id, db){
   
   
 }
+
+
 
 
