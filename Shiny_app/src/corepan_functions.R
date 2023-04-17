@@ -31,7 +31,8 @@ extract_sequences_fasta <- function(matrix, all_proteins, db, bacteria, id, name
   
   #names_equivalence = read.table('names_equivalence.txt', header = T)
   names_equivalence$MicroLife_name = str_remove(names_equivalence$MicroLife_name, '_O.fna')
-  
+  names_equivalence$Full_name = str_remove(names_equivalence$Full_name, '_O.fna')
+
   gene_list = character()
   for (i in 1:nrow(extract_genes)){
     gene_list = paste0(gene_list,extract_genes$descriptions[i] )
