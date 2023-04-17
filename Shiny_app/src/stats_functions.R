@@ -8,14 +8,6 @@
 
 
 
-
-library(dplyr)
-library(data.table)
-library(viridis)
-library(ggplot2)
-library(gtools)
-library(rmarkdown)
-library(reshape2)
 #source('corepan_functions.R')
 
 #Remove rows with all colums same value 
@@ -358,7 +350,7 @@ stats <- function(input_list, clean_matrix){
     matrix_stats <- clean_matrix[,1:n_samples] 
     matrix_stats<- remove_constant_columns(matrix_stats)
     if (column == 'Lifestyle'){
-      remove_unknowns <- mapping_file[mapping_file$Lifestyle %in% 'Unknown',]
+      remove_unknowns <- groups[groups$Lifestyle %in% 'Unknown',]
       if (nrow(remove_unknowns) > 0){
         matrix_stats <- matrix_stats[,-which(names(matrix_stats) %in% remove_unknowns$Sample)]
       }
@@ -498,7 +490,7 @@ heatmap_gcf_function2 <- function(gcf_matrix, map, column){
   gcf <- gcf[,colSums(gcf)> (nrow(gcf) * 0.01)]
   
   df1 <- data.frame(sample = rownames(gcf), id = 1)
-  df2 <- data.frame(sample = mapping_file$Sample, id = 2)
+  df2 <- data.frame(sample = map$Sample, id = 2)
   
   M<- merge(df1, df2, by= 'sample')
   map <- map[map$Sample %in% M$sample,]
@@ -535,7 +527,7 @@ COG_significative_genes <- function(result, cog, min, db){
   result[is.na(result$cogid)]$cogid <- 'Unknown'
   result <- as.data.frame(result)
   
-  M <- merge(result, cog_extended_annotations, by.x = 'cogid', by.y = 'id', all.x = T)
+  M <- merge(result, cog, by.x = 'cogid', by.y = 'id', all.x = T)
   M <- data.table(M)
   M[is.na(M$processes)]$processes <- 'S'
   M$new <- paste0('UP in ', colnames(M)[6])
@@ -675,3 +667,4 @@ super_abs_pres_plot <- function(mtrx, groups, group1,group2, column){
   plot <- ggplotly(plot)
   return(plot)
 }
+
