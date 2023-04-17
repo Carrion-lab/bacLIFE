@@ -14,7 +14,7 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                                         mainPanel(
                                           h1('Welcome to Microlife!'),
                                           p(introduction ),
-                                          imageOutput('image1',  height = '500px', width= '850px'),
+                                          imageOutput('image1',  height = '400px', width= '850px'),
                                           
                                           h1('MicroLife App'),
                                           p( 'MicroLife app consists in five sections which offer a complete analysis based in the conservation of genes and biosynthetic genes among genomes. Specific plots are generated in each of these sections helping the user to visualize the large amount of data'),
@@ -269,7 +269,7 @@ server <- function(input, output){
   
   
   output$image1 <- renderImage({
-    list(src='www/Microlife_wokflow.png', height = '500px', width= '850px')
+    list(src='www/Microlife_wokflow.png', height = '400px', width= '850px')
   },  deleteFile = F)
   
   output$image2 <- renderImage({
