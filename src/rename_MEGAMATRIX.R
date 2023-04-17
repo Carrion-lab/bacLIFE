@@ -32,7 +32,7 @@ old_colnames <- data.frame(MicroLife_name = colnames(big_scape_matrix) )
 M <- merge(old_colnames, names_equivalence, by = 'MicroLife_name')
 
 M <- M[match(M$MicroLife_name,old_colnames$MicroLife_name),]
-colnames(big_scape_matrix)[2:(ncol(big_scape_matrix) - 1)]  <- M$Full_name
+colnames(big_scape_matrix) <- M$Full_name
 
 write.table(big_scape_matrix, args[5], row.names = T)
 
