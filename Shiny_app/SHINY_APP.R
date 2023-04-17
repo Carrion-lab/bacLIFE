@@ -1,3 +1,4 @@
+
 source('data_app.R')
 
 # Define UI ----
@@ -6,7 +7,7 @@ source('data_app.R')
 ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                  tabPanel('INTRODUCTION',
                           sidebarLayout(position = 'left',
-                                        sidebarPanel(p('Authors: Guillermo Guerrero; Luisa Maria Arias-Giraldo & Victor Carrion Bravo'),
+                                        sidebarPanel(p('Authors: Guillermo Guerrero; Adrian Pintado & Victor Carrion'),
                                                      p('Institute of Biology Leiden (IBL)'),
                                                      p('Leiden University')
                                         ),
@@ -216,8 +217,8 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                                         mainPanel(
                                           tabsetPanel(
                                             tabPanel("Mapping file for stats:",
-                                                     
-                                                     box(title = "Mapping file for stats:", width = NULL, height = 1,solidHeader = T,  status = "primary",div(style = 'height:400px;overflow-y: scroll', tableOutput('table')))
+                                                     DT::dataTableOutput('tablemap'),
+                                                     #box(title = "Mapping file for stats:", width = NULL, height = 1,solidHeader = T,  status = "primary",div(style = 'height:400px;overflow-y: scroll', tableOutput('table')))
                                             ),
                                             tabPanel("Statistics",
                                                      uiOutput('statsresults')
@@ -234,7 +235,8 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                                           selectInput('data_for_msa', label = "Choose bacteria:", choices = as.list(c('All', unique(mapping_file$Sample) ))),
                                           selectInput('msacolumn', label = 'Choose database', choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'PROKKA', 'DBCAN')),
                                           textInput('msaid', 'Choose cluster: ', value = ''),
-                                          actionButton("gomsa", "Get fasta")
+                                          #actionButton("gomsa", "Get fasta"),
+                                          downloadButton("downloadFASTA", "Download")
                                           
                                         ),
                                         
@@ -340,7 +342,7 @@ server <- function(input, output){
     mapping_file <- mapping_file[[1]]
     input <- general_upset_plot(matrix[,1:n_samples], mapping_file, 'full_matrix', column)
     
-    plot <- cog_core_groups(matrix, input, cog_extended_annotations, cog_process)
+    plot <- cog_core_groups(matrix, input, cog_extended_annotations, cog_process, n_samples, df_colors)
     ggplotly(plot)
   })
   
@@ -350,7 +352,7 @@ server <- function(input, output){
     cog_process <- input$allgenesprocess
     mapping_file <- new_mapping_file()
     mapping_file <- mapping_file[[1]]
-    all_genes_cog <- cog_groups_percent(cog_agg_matrix, cog_extended_annotations, mapping_file, column ,cog_process)
+    all_genes_cog <- cog_groups_percent(cog_agg_matrix, cog_extended_annotations, mapping_file, column ,cog_process, df_colors)
     return(all_genes_cog)
   })
   output$allgenescogplot_1 <- renderPlotly({
@@ -642,10 +644,7 @@ server <- function(input, output){
     
   })
   
-  output$table <- renderTable({
-    table <- new_mapping_file()
-    table <- table[[1]]
-  })
+  
   
   output$lifestyle_preservation <- renderPlotly({
     column <- input$input_column
@@ -712,7 +711,22 @@ server <- function(input, output){
     return(returned_item)
   })
   
-  
+  output$downloadFASTA <- downloadHandler(
+    filename = function(){
+      paste( "sequence_file", "fasta", sep = ".")
+    },
+    content = function(file){
+      mapping_file <- new_mapping_file()
+      mapping_file <- mapping_file[[1]]
+      id <- input$msaid
+      bacteria <- input$data_for_msa 
+      db <- input$msacolumn
+      input_list1 <- list(id, mapping_file, db, bacteria)
+      
+      input_list2 = extract_sequences_fasta(matrix, all_proteins, input_list1[[3]], input_list1[[4]], input_list1[[1]], names_equivalence)
+      ape::write.FASTA(input_list2[[2]], file)
+    } 
+  )
   
   
   
@@ -744,9 +758,38 @@ server <- function(input, output){
   output$markdown <- DT::renderDataTable({
     results <- results()
     results$descriptions = NULL
+    results <- DT::datatable(
+      results,
+      extensions = c("Buttons"),
+      options = list(
+        dom = 'Bfrtip',
+        buttons = list(
+          list(extend = "excel", text = "Download Current Page", filename = "page",
+               exportOptions = list(
+                 modifier = list(page = "current")
+               )
+          ),
+          list(extend = "excel", text = "Download Full Results", filename = "data",
+               exportOptions = list(
+                 modifier = list(page = "all"))))))
     results
   })
   
+  
+  
+  output$tablemap <- DT::renderDataTable({
+    table <- new_mapping_file()
+    table <- table[[1]]
+    DT::datatable(
+      table,
+      extensions = c("Buttons"),
+      options = list(
+        dom = 'Bfrtip',
+        buttons = list(
+          list(extend = "excel", text = "Download Table", filename = "data",
+               exportOptions = list(
+                 modifier = list(page = "all"))))))
+  })
   
   output$map_download <- DT::renderDataTable({
     mapping_file <- new_mapping_file()
@@ -822,7 +865,7 @@ server <- function(input, output){
     input_list <- vals_gomsa()
     file_download = fasta_process()
     tagList(
-      tags$label(h3(paste0('Fasta files saved as ',file_download ))),
+      tags$label(h3(paste0('Fasta files saved as ',file_download[[1]] ))),
     )
     
   })
@@ -857,6 +900,10 @@ server <- function(input, output){
 }
 # Run the app ----
 shinyApp(ui = ui, server = server)
+
+
+
+
 
 
 
