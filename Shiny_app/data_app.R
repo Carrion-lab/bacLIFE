@@ -7,8 +7,6 @@
 ####################################
 
 
-
-
 library(shiny)
 library(readr)
 library(UpSetR)
@@ -59,7 +57,7 @@ names_equivalence = read.table('input/names_equivalence.txt', header = T)
 
 
 ###
-mapping_file$Genus <- sapply(strsplit(mapping_file$Sample,"_"), `[`, 1)
+mapping_file$Species <- sapply(strsplit(mapping_file$Sample,"_"), `[`, 2)
 matrix = as.data.frame(matrix)
 n_samples <- grep("completeness", colnames(matrix)) - 1
 matrix[,2:n_samples] <- sapply(matrix[,2:n_samples],as.numeric)
@@ -249,3 +247,4 @@ cog_process_options <- as.list(c('All', cog_processes ))
 
 ###Free RAM
 rm()
+
