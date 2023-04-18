@@ -18,12 +18,59 @@ library(stringr)
 library(dplyr)
 library(readr)
 library(data.table)
-source('src/corepan_functions.R')
-source('src/stats_functions.R')
-source('src/text_shiny.R')
 
+####Functions
 
 `%!in%` = Negate(`%in%`)
+
+core_genes_extraction <- function(matrix, n_samples){
+  zeros <- rowSums(matrix[2:n_samples] == 0)
+  matrix$n_zeros <- zeros
+  core_genes <- matrix[matrix$n_zeros < (n_samples - (n_samples*0.9)),]
+  non_core_genes <- matrix[matrix$n_zeros > (n_samples - (n_samples*0.9)),]
+  core_genes <- core_genes[1:(length(core_genes)-1)]
+  return_list <- list(core_genes, non_core_genes)
+  return(return_list)
+}
+
+
+extract_singletons <- function(matrix){
+  n_samples <- grep("completeness", colnames(matrix)) - 1
+  zeros <- rowSums(matrix[2:n_samples] == 0)
+  matrix$n_zeros <- zeros
+  singletons <- matrix[matrix$n_zeros == (n_samples - 2),]
+  singletons <- singletons[1:(length(singletons)-1)]
+  no_singletons <- matrix[!(matrix$n_zeros == (n_samples - 2)),]
+  no_singletons <- no_singletons[1:(length(no_singletons)-1)]
+  
+  return_list <- list(singletons, no_singletons)
+  return(return_list)
+  
+}
+
+
+####Function extract genes with more than 90 % of 0s
+remove_genes_with_0s <- function(matrix){
+  n_samples <- grep("completeness", colnames(matrix)) - 1
+  zeros <- rowSums(matrix[2:n_samples] == 0)
+  matrix$n_zeros <- zeros
+  no_singletons <- matrix[matrix$n_zeros < (n_samples - (n_samples*0.01)),]
+  no_singletons <- no_singletons[1:(length(no_singletons)-1)]
+  
+  return(no_singletons)
+  
+}
+
+
+remove_constant_columns <- function(matrix){
+  n_samples <- ncol(matrix)
+  keep <- apply(matrix[2:n_samples], 1, function(x) length(unique(x[!is.na(x)])) != 1)
+  new_matrix <-  matrix[keep,]
+  return(new_matrix)
+}
+
+
+
 
 
 args = commandArgs(trailingOnly=TRUE)
@@ -41,7 +88,6 @@ matrix[,2:n_samples] <- sapply(matrix[,2:n_samples],as.numeric)
 dir.create('corepan_analysis', showWarnings = F)
 core_genes_out <- core_genes_extraction(matrix, n_samples)
 core_genes <- core_genes_out[[1]]
-write.table(core_genes,'corepan_analysis/core_genes.txt', row.names = F)
 non_core_genes <- core_genes_out[[2]]
 
 #Extract singletons genes
@@ -51,9 +97,6 @@ no_singletons <- extract_singleton_genes[[2]]
 
 #Remove genes with more than 95% of 0s
 clean_matrix <- remove_genes_with_0s(no_singletons)
-
-#Extract singletons for each sample(output automatic in directory singletons_per_sample/ )
-singletons_table <- singleton_per_sample(singletons)
 
 
 #Prepare filtered matrix
@@ -88,7 +131,7 @@ data_known = MMM[MMM$Lifestyle %!in% c('Unknown')]
 unique_lifestyles = unique(data_known$Lifestyle)
 for (i in unique_lifestyles){
   count = length(data_known[data_known$Lifestyle %in% i]$Lifestyle)
-  if (count < 10 ){
+  if (count < 9 ){
     next
   }else{
     mtrx = data_known
@@ -123,3 +166,4 @@ colnames(new_mapping_file)[2] = 'Lifestyle'
 new_mapping_file[is.na(new_mapping_file$Lifestyle)]$Lifestyle = 'Unknown'
 write.table(new_mapping_file, 'mapping_file_augmented.txt', row.names = F)
 print('New mapping_file saved as: mapping_file_augmented.txt')
+
