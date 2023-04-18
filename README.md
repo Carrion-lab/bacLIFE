@@ -90,28 +90,25 @@ You can find an example of the mapping file in the main folder. It consists of a
 MEGAMATRIX.txt: This file is the main output of MicroLife and consists in a matrix where each row represent one gene cluster and each column represent the presence of these clusters in the different genomes and its annotation in different databases
 
 # microLife Lifestyle prediction module
-User can test the predictability of their metadata with the machine learning model random forest using the script 'src/classifier_evaluation.R'
+User can test the predictability of their metadata with the machine learning model random forest using the script 'src/classifier.R'
 
 ```
-Rscript src/classifier_evaluation.R mapping_file.txt MEGAMATRIX.txt
+Rscript src/classifier.R mapping_file.txt MEGAMATRIX.txt
 ```
-ROC plots showing the model evaluation for the different classes present in the metadata are generated and stored in classifier_plots/
+ROC plots showing the model evaluation for the different classes present in the metadata are generated and stored in classifier/
 
-If good accuracy is accomplished, user can augment the metadata of genomes labeled as 'Unknown' in the mapping file running the following script
-```
-Rscript src/classifier_metadata_augmentation.R mapping_file.txt MEGAMATRIX.txt
-``` 
+If good accuracy is accomplished, user can use the model for predictions of genomes labeled as 'Unknown' in the mapping file 
 Metadata augmented is stored in the new file "mapping_file_augmented.txt" 
 
 # MicroLife App
 
 ### - Prepare input 
-In order to initiate the shiny app, the following snakemake output files need to be droped in the 'Shiny_app/input' directory.
+In order to initiate the shiny app, the following snakemake output files need to be droped in the 'Shiny_app/input/' directory.
 
-- MEGAMATRIX.txt
-- mapping_file.txt
-- intermediate_files/BiG-SCAPE/big_scape_binary_table.txt
+- MEGAMATRIX_renamed.txt
+- mapping_file.txt or mapping_file_augmented.txt
+- intermediate_files/BiG-SCAPE/big_scape_binary_table_renamed.txt
 - intermediate_files/BiG-SCAPE/annotation.txt
 - intermediate_files/combined_proteins/combined_proteins.fasta
 
-After input preparation users can open the script "Shiny_app.R" in Rstudio and click in the upper right 'run app' bottom to initiate the MicroLife app.
+After input preparation users can open the script "app.R" in Rstudio and click in the upper right 'run app' bottom to initiate the MicroLife app. 
