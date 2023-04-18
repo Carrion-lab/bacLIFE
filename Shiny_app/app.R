@@ -21,12 +21,14 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                                           p(exploration),
                                           h3('- Clustering'),
                                           p( clustering),
-                                          h3('- Core-pan analysis'),
+                                          h3('- Pancore analysis'),
                                           p(corepananalysis), 
                                           h3('- Statistics'),
                                           p( statisticalanalysis),
-                                          h3('- Multiple Sequence Alignment (MSA)'),
-                                          p(multipleseqalignment),
+                                          h3('- Gene cluster distribution'),
+                                          p(geneclusterdistribution),
+                                          h3('- Download fasta'),
+                                          p(downloadfasta),
                                           
                                           
                                           p("MicroLife was created by the CarrionLab of the Institute of Biology Leiden's  (IBL) plant-microbiome interaction department."),
@@ -152,7 +154,7 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                  tabPanel("CORE-PAN ANALYSIS",
                           tabsetPanel(
                             tabPanel('PAN-GENOME',  
-                                     h1("Core-genome COG profiles"),
+                                     h1("Pan-genome COG profiles"),
                                      sidebarLayout(position = 'left',
                                                    sidebarPanel('Input parameters',
                                                                 selectInput('allgenescolumn', label = 'Plot group:', choices = mapping_options),
@@ -192,10 +194,10 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                                                    )
                                      )),
                             
-                            tabPanel('Singletons',
-                                     tags$label(h3('Histogram number of singletons')),
+                            tabPanel('Unique genes',
+                                     tags$label(h3('Histogram number of unique genes')),
                                      plotOutput(outputId = "singletonplot"),
-                                     box(title = "Number of singletons/sample in this dataset:", width = NULL, height = 1,solidHeader = T,  status = "primary",div(style = 'height:400px;overflow-y: scroll', tableOutput('table_singletons'))),
+                                     box(title = "Number of unique genes/sample in this dataset:", width = NULL, height = 1,solidHeader = T,  status = "primary",div(style = 'height:400px;overflow-y: scroll', tableOutput('table_singletons'))),
                             )
                             
                           )),
@@ -959,6 +961,10 @@ server <- function(input, output){
 }
 # Run the app ----
 shinyApp(ui = ui, server = server)
+
+
+
+
 
 
 
