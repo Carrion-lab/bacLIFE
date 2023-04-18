@@ -93,7 +93,7 @@ MEGAMATRIX.txt: This file is the main output of MicroLife and consists in a matr
 User can test the predictability of their metadata with the machine learning model random forest using the script 'src/classifier.R'
 
 ```
-Rscript src/classifier.R mapping_file.txt MEGAMATRIX.txt
+Rscript src/classifier.R mapping_file.txt MEGAMATRIX_renamed.txt
 ```
 ROC plots showing the model evaluation for the different classes present in the metadata are generated and stored in classifier/
 
