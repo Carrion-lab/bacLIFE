@@ -2,8 +2,6 @@
 source('data_app.R')
 
 # Define UI ----
-
-# Define UI ----
 ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                  tabPanel('INTRODUCTION',
                           sidebarLayout(position = 'left',
@@ -228,6 +226,28 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                                           
                                         )
                           )),
+                 tabPanel("GENE CLUSTER DISTRIBUTION",
+                          h1('Check distribution of a gene cluster'),
+                          sidebarLayout(position = 'left',
+                                        sidebarPanel(
+                                          textInput('cluster2distribution', 'Choose cluster: ', value = ''),
+                                          actionButton("checkdistribution", "Obtain distribution"),
+                                        
+                                          
+                                        ),
+                                        
+                                        mainPanel(
+                                          h1(' '),
+                                          h3('PCoA with the distribution of the chosen gene cluster'),
+                                          uiOutput(outputId = "PCAplotgenedistribution",width = '800px',height = '2000px')
+                                          
+                                        )
+                          )
+                          
+                          
+                          
+                          
+                 ),
                  tabPanel("DOWNLOAD FASTA",
                           h1('Download fasta sequences'),
                           sidebarLayout(position = 'left',
@@ -704,6 +724,45 @@ server <- function(input, output){
     return(return_list)
   })
   
+  
+  vals_checkdistribution <- eventReactive(input$checkdistribution, {
+    
+    clusterid <- input$cluster2distribution
+    
+    return(clusterid)
+  })
+  
+  
+  output$PCAplotgenedistribution <- renderUI({
+    hit = vals_checkdistribution()
+    cluster_hit = matrix[matrix$clusters %in% hit,]
+    cluster_hit = cluster_hit[,2:n_samples]
+    copy_pcoa_data = full_pca
+    new_col = as.data.frame(t(cluster_hit))
+    new_col$Sample = colnames(cluster_hit)
+    colnames(new_col)[1]= 'Presence' 
+    new_col = new_col[,c(2,1)]
+    copy_pcoa_data = data.table(merge(full_pca, new_col, by = 'Sample'))
+    #copy_pcoa_data[copy_pcoa_data$Presence > 1 ]$Presence  = 1
+    copy_pcoa_data$Presence = as.factor(copy_pcoa_data$Presence)
+    
+    
+    
+    color_column <- 'Presence'
+    
+    m <- highlight_key(copy_pcoa_data)
+    
+    plot <- ggplot(m, aes_string(x = 'X', y = 'Y', color = color_column, label= 'Sample'))  + xlab(paste0('PC1 - ', round(full_eig[1],2), '%', sep='')) + 
+      ylab(paste0('PC2 - ', round(full_eig[2],2), '%', sep='')) + geom_point(aes_string(color = color_column)) + theme_bw() +  scale_color_manual(values = as.character(glasbey(n = nrow(copy_pcoa_data))))
+    gg <- highlight(ggplotly(plot, height = 500), 'plotly_selected')
+    p <- crosstalk::bscols(gg, DT::datatable(m), widths = 10,  device = 'lg')
+    p
+  })
+  
+  
+  
+  
+  
   fasta_process <- reactive({
     input_list <- vals_gomsa()
     returned_item = extract_sequences_fasta(matrix, all_proteins, input_list[[3]], input_list[[4]], input_list[[1]], names_equivalence)
@@ -900,6 +959,10 @@ server <- function(input, output){
 }
 # Run the app ----
 shinyApp(ui = ui, server = server)
+
+
+
+
 
 
 
