@@ -308,7 +308,6 @@ rule bigscape_exe:
             outdir = 'intermediate_files/BiG-SCAPE/bigscape_output/',
             threads = THREADS,
             indir = rules.directories.params.antismash
-        conda: "/ENVS/bigscape.yml"
         shell:
             "set +u; source /opt/miniconda3/etc/profile.d/conda.sh; conda activate bigscape_microlife; set -u; python ./intermediate_files/BiG-SCAPE/bigscape.py -i {params.indir} -o {params.outdir} --pfam_dir intermediate_files/PFAM/ --mode glocal --mibig --cutoffs 0.3 0.7 --include_singletons --cores {params.threads} --mix"
 
