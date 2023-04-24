@@ -311,12 +311,14 @@ vulcano_plot <- function(data, db){
   to_plot$significative_difference <- 'NO'
   
   if (db == 'MCL' | db =='GCF'){
-    to_plot[to_plot$pvalue_adj_fisher < 0.01]$significative_difference <- 'YES'
+    to_plot[to_plot$pvalue_adj_fisher < 0.01 & to_plot$log2fold > 2]$significative_difference <- 'YES'
+    to_plot[to_plot$pvalue_adj_fisher < 0.01 & to_plot$log2fold < -2]$significative_difference <- 'YES'
     plot <- ggplot(to_plot, aes(x=log2fold, y=-log10(pvalue_adj_fisher), col=significative_difference, label = id)) + 
       geom_point() + ggtitle(paste0(db ,' significant genes')) +
       theme_minimal() + theme_bw()
   }else{
-    to_plot[to_plot$pvalue_adj_log < 0.01]$significative_difference <- 'YES'
+    to_plot[to_plot$pvalue_adj_log < 0.01 & to_plot$log2fold > 2]$significative_difference <- 'YES'
+    to_plot[to_plot$pvalue_adj_fisher < 0.01 & to_plot$log2fold < -2]$significative_difference <- 'YES'
     plot <- ggplot(to_plot, aes(x=log2fold, y=-log10(pvalue_adj_log), col=significative_difference, label = id)) + 
       geom_point() + ggtitle(paste0(db ,' significant genes quatity logistic regression')) +
       theme_minimal() + theme_bw()
@@ -509,14 +511,14 @@ heatmap_gcf_function2 <- function(gcf_matrix, map, column){
 
 ###When cd-hit stats chosen, this creates a plot showing the COG hierarchy of the significant cd-hit clusters
 COG_significative_genes <- function(result, cog, min, db){
-  if (db == 'COG'){
+  if (db == 'MCL'){
+    column1 <- 5
+    column2 <- 4
+  }
+  else {
     column1 <- 6
     column2 <- 5
     colnames(result)[1] <- 'cogid'
-  }
-  else {
-    column1 <- 5
-    column2 <- 4
   }
   
   result$mean_difference <- (result[,colnames(result)[column1]] - result[,colnames(result)[column2]])
@@ -536,100 +538,14 @@ COG_significative_genes <- function(result, cog, min, db){
   
   df <- as.data.frame(table(M$new,M$processes))
   
+  colnames(df)[2] = 'COG_category'
   
-  M2 <- M
-  M2$pvalue_adj_fisher<- -log10(M2$pvalue_adj_fisher)
+  plot = ggplotly(ggplot(data=df, aes(x=COG_category, y=Freq, fill=Var1)) +
+    geom_bar(stat="identity", position=position_dodge())+
+    scale_fill_brewer(palette="Paired")+
+    theme_minimal())
+  return(plot)
   
-  op <- unique(M$new)
-  
-  colors <- as.character(alphabet2(n=2))
-  color1 <-colors[1]
-  color2 <- colors[2]
-  fig <- M2 %>%
-    plot_ly(type = 'violin')
-  fig <- fig %>%
-    add_trace(
-      x = ~processes[M2$new == op[1]],
-      y = ~mean_difference[M2$new == op[1]],
-      
-      legendgroup = paste0('DOWN in ', colnames(M2)[6]),
-      scalegroup = paste0('DOWN in ', colnames(M2)[6]),
-      name = paste0('DOWN in ', colnames(M2)[6]),
-      
-      box = list(
-        visible = T
-      ),
-      meanline = list(
-        visible = T
-      ),
-      color = I('grey')
-    )
-  fig <- fig %>%
-    add_trace(
-      x = ~processes[M2$new == op[2]],
-      y = ~mean_difference[M2$new == op[2]],
-      legendgroup= paste0('UP in ', colnames(M2)[6]),
-      scalegroup = paste0('UP in ', colnames(M2)[6]),
-      name = paste0('UP in ', colnames(M2)[6]),
-      
-      box = list(
-        visible = T
-      ),
-      meanline = list(
-        visible = T
-      ),
-      color = I('black')
-    )
-  
-  
-  
-  fig <- fig %>%
-    layout(
-      yaxis = list(categoryorder = "array",categoryarray = ~processes,
-        zeroline = F, title = "difference in group means"
-      )
-      
-    )
-  
-  
-  
-  M2$processes <- factor(M2$processes, levels = unique(M2$processes))
-  
-  df$Var2 <- factor(df$Var2, levels = unique(M2$processes))
-  
-  fig2 <- df %>% plot_ly(
-    x = ~Var2[df$Var1 == op[1]],
-    y = ~Freq[df$Var1 == op[1]],
-    
-    name = paste0('DOWN in ', colnames(M2)[6]),
-    type = "bar",
-    color = I('grey')
-    
-  )
-  
-  fig2 <- fig2 %>% add_trace(
-    x = ~Var2[df$Var1 == op[2]],
-    y = ~Freq[df$Var1 == op[2]],
-    
-    name = paste0('UP in ', colnames(M2)[6]),
-    type = "bar",
-    color = I('black')
-  )
-  ax <- list(
-    title = "",
-    zeroline = FALSE,
-    showline = FALSE,
-    showticklabels = FALSE,
-    showgrid = FALSE
-  )
-  fig2 <- fig2 %>% layout(yaxis = list(title = 'Count'), barmode = 'group', showlegend = FALSE)
-  
-  
-  
-  final <- subplot(style(fig2, showlegend = F),
-                   style(fig, showlegend = T),
-                   nrows = 2, heights = c(0.34,0.66),titleY = TRUE, titleX = F, shareX = T)
-  return(final)
 }
 
 
@@ -662,7 +578,11 @@ super_abs_pres_plot <- function(mtrx, groups, group1,group2, column){
   colnames(df)[2] <- group1
   colnames(df)[3] <- group2
   
-  plot <- ggplot(df, aes_string(x= group1, y = group2)) + geom_hex(bins = 50) + scale_fill_gradient(low="lightblue1",high="darkblue",trans="log10")  + 
+  df2 <- df %>% group_by(across(all_of(c(group1,group2)))) %>% 
+    summarise(total_count=n(),.groups = 'drop') %>%
+    as.data.frame()
+  
+  plot <- ggplot(df2, aes_string(x= group1, y = group2, size = 'total_count')) + geom_point(alpha = 0.5,color = '#957DAD')  + scale_size(range = c(.1, 24), name="Number of gene clusters") + 
     theme_bw() + xlab( paste0('Relative presence in ' , group1)) + ylab( paste0('Relative presence in ', group2))
   plot <- ggplotly(plot)
   return(plot)
