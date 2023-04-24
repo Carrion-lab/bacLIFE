@@ -5,7 +5,7 @@ source('data_app.R')
 ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                  tabPanel('INTRODUCTION',
                           sidebarLayout(position = 'left',
-                                        sidebarPanel(p('Authors: Guillermo Guerrero; Adrian Pintado & Victor Carrion'),
+                                        sidebarPanel(width = 3,p('Authors: Guillermo Guerrero; Adrian Pintado & Victor Carrion'),
                                                      p('Institute of Biology Leiden (IBL)'),
                                                      p('Leiden University')
                                         ),
@@ -16,18 +16,18 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                                           imageOutput('image1',  height = '400px', width= '850px'),
                                           
                                           h1('MicroLife App'),
-                                          p( 'MicroLife app consists in five sections which offer a complete analysis based in the conservation of genes and biosynthetic genes among genomes. Specific plots are generated in each of these sections helping the user to visualize the large amount of data'),
-                                          h3('- Exploration'),
+                                          p( microLife_app),
+                                          h3('Exploration'),
                                           p(exploration),
-                                          h3('- Clustering'),
+                                          h3('Clustering'),
                                           p( clustering),
-                                          h3('- Pancore analysis'),
+                                          h3('Pancore analysis'),
                                           p(corepananalysis), 
-                                          h3('- Statistics'),
+                                          h3('Statistics'),
                                           p( statisticalanalysis),
-                                          h3('- Gene cluster distribution'),
+                                          h3('Gene cluster distribution'),
                                           p(geneclusterdistribution),
-                                          h3('- Download fasta'),
+                                          h3('Download fasta'),
                                           p(downloadfasta),
                                           
                                           
@@ -47,7 +47,7 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                             tabPanel('Gene Clusters',
                                      h1("Gene Clusters"),
                                      sidebarLayout(position = 'left',
-                                                   sidebarPanel('Input parameters',
+                                                   sidebarPanel(width = 3,'Input parameters',
                                                                 selectInput('PCA_database', label = "Database:", choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'PROKKA', 'DBCAN')),
                                                                 selectInput("PCA_color", label = "Color:", choices = mapping_options_PCA)
                                                    ),
@@ -55,9 +55,13 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                                                      tabsetPanel(
                                                        tabPanel('PCA',
                                                                 tags$label(h3('PCA plot')),
+                                                                p('Description: Principal coordinate analysis based on the dice dissimilarity calculated on the absence/presence table of gene clusters. Each point represent one genome and its color the metadata of the metadata column chosen in the sidebar'),
+                                                                
                                                                 uiOutput(outputId = "PCAplot",width = '800px',height = '2000px')),
                                                        tabPanel('Dendrogram',
                                                                 tags$label(h3('Dendrogram')),
+                                                                p('Description: Dendrogram based on the dice dissimilarity calculated on the absence/presence table of gene clusters. Color represent the metadata column chosen in the sidebar'),
+                                                                
                                                                 plotOutput(outputId = "dendograma",width = '1000px',height = '1000px')
                                                        )
                                                      )
@@ -68,18 +72,23 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                             tabPanel('Biosynthetic gene clusters',
                                      h1("Biosynthetic gene clusters"),
                                      sidebarLayout(position = 'left',
-                                                   sidebarPanel('Input parameters',
+                                                   sidebarPanel(width = 3,'Input parameters',
                                                                 selectInput("PCA_color_BGC", label = "Color:", choices = mapping_options_PCA)
                                                    ),
                                                    mainPanel(
                                                      tabsetPanel(
                                                        tabPanel('PCA',
+                                                                p('Description: Principal coordinate analysis based on the dice dissimilarity calculated on the absence/presence table of Biosynthetic Gene Clusters (BGCs). Each point represent one genome and its color the metadata of the metadata column chosen in the sidebar'),
+                                                                
                                                                 tags$label(h3('PCA plot')),
                                                                 plotlyOutput(outputId = "PCAplotBGC",width = '800px',height = '500px')),
                                                        tabPanel('BGCs Heatmap',
                                                                 h1("Biosynthetic Gene Clusters"),
                                                                 selectInput('bgcheatmap_column', label = 'Side Column color:', choices = mapping_options),
                                                                 tags$label(h3('Heatmap Gene Cluster Family Classes')),
+                                                                
+                                                                p('Description: Heatmap calculated on the absence/presence table of Biosynthetic Gene Clusters (BGCs). Color represent the metadata column chosen in the sidebar'),
+                                                                
                                                                 plotlyOutput(outputId = "bgcheatmap2",width = '800px',height = '800px')
                                                                 
                                                        )
@@ -99,7 +108,7 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                             tabPanel('Clustering',
                                      h1("Gene Clusters"),
                                      sidebarLayout(position = 'left',
-                                                   sidebarPanel('Input parameters',
+                                                   sidebarPanel(width = 3,'Input parameters',
                                                                 selectInput('clusterclass', label = 'Upset plot data:', choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'PROKKA', 'DBCAN', 'GCF')),
                                                                 sliderInput('knumber', label = 'Number of clusters KNN:', min = 1, max = 15, value = 2),
                                                                 sliderInput('hdbscannumber', label = 'Minimum points/cluster HDBSCAN:', min = 2, max = 100, value = 2),
@@ -111,18 +120,27 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                                                        tabPanel('KNN clustering',
                                                                 
                                                                 h4('Optimal number of clusters'),
+                                                                
+                                                                p('Description: Within groups sum of squares using 1-15 clusters. This value should be orientative in finding the optimal number of bacterial clusters based in microLife gene cluster absence/presence matrix '),
+                                                                
                                                                 plotOutput(outputId = "optimalclusters",width = '500px',height = '300px'),
                                                                 h4('KNN clusters plot'),
+                                                                p('Description: Principal coordinate analysis based on the dice dissimilarity calculated on the absence/presence table of gene clusters. Each point represent one genome and its color the cluster membership when K-Nearest Neighbors Algorithm (KNN) is implemented'),
+                                                                
                                                                 plotlyOutput(outputId = "KNN",width = '800px',height = '500px'),
                                                                 
                                                        ),
                                                        tabPanel('HDBSCAN clustering',
                                                                 h4('HDBSCAN clusters plot'),
+                                                                p('Description: Principal coordinate analysis based on the dice dissimilarity calculated on the absence/presence table of gene clusters. Each point represent one genome and its color the cluster membership when HDBSCAN clustering is implemented'),
+                                                                
                                                                 plotlyOutput(outputId = "HDBSCAN",width = '800px',height = '500px')
                                                                 
                                                        ),
                                                        tabPanel('Dendrogram clustering',
                                                                 h4('Dendrogram clusters'),
+                                                                p('Description: Dendrogram based on the dice dissimilarity calculated on the absence/presence table of gene clusters. Each color represent the cluster membership when the dendrogram is cutted'),
+                                                                
                                                                 plotOutput(outputId = "dendoclust",width = '1000px',height = '1000px')
                                                                 
                                                        )
@@ -132,12 +150,14 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                             tabPanel("LIFESTYLE PRESERVATION",
                                      h1("Lifestyle preservation"),
                                      sidebarLayout(position = 'left',
-                                                   sidebarPanel(selectInput('input_column', label = "Choose cluster to visualize lifestyle perseverance:", choices = list('clusters_knn', 'clusters_hdbscan', 'clusters_dendrogram')),
+                                                   sidebarPanel(width = 3,selectInput('input_column', label = "Choose cluster to visualize lifestyle perseverance:", choices = list('clusters_knn', 'clusters_hdbscan', 'clusters_dendrogram')),
                                                                 
                                                                 
                                                    ),
                                                    mainPanel(
                                                      h3('Barplots lifestyle preservation per cluster'),
+                                                     p('Description: Barplot showing the proportions of Lifestyles in each of the clusters obtained with any of the three methods'),
+                                                     
                                                      plotlyOutput(outputId = "lifestyle_preservation",width = '800px',height = '500px')
                                                      
                                                      
@@ -156,13 +176,15 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                             tabPanel('PAN-GENOME',  
                                      h1("Pan-genome COG profiles"),
                                      sidebarLayout(position = 'left',
-                                                   sidebarPanel('Input parameters',
+                                                   sidebarPanel(width = 3,'Input parameters',
                                                                 selectInput('allgenescolumn', label = 'Plot group:', choices = mapping_options),
                                                                 selectInput('allgenesprocess', label = 'Choose COG process:', choices = cog_process_options)
                                                    ),
                                                    mainPanel(
                                                      
                                                      tags$label(h3('COG profiles percent % ')),
+                                                     p('Description: Barplots showing the COG annotation of all genes of each bacteria. Barplots can be grouped by any metadata column or clusters created in the CLUSTERING section.'),
+                                                     
                                                      plotlyOutput(outputId = "allgenescogplot_2",width = '1000px',height = '500px')
                                                      
                                                      
@@ -174,19 +196,28 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                                      
                                      h1("Core-genome"),
                                      sidebarLayout(position = 'left',
-                                                   sidebarPanel('Input parameters',
+                                                   sidebarPanel(width = 3,'Input parameters',
                                                                 selectInput('upsetclass', label = 'Upset plot data:', choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'PROKKA', 'DBCAN', 'GCF')),
                                                                 selectInput('upsetcolumn', label = 'Upset plot group:', choices = mapping_options),
                                                                 selectInput('coreprocess', label = 'Choose COG process:', choices = cog_process_options)
                                                    ),
                                                    mainPanel(
                                                      tags$label(h3('Complete dataset core-genome')),
+                                                     p('Description: COG functional categories proportions of the core-genome (genes in >90% of genomes) of the complete dataset'),
+                                                     
                                                      plotlyOutput(outputId = "allcorecog",width = '500px',height = '400px'),
+                                                     p(paste0('Number of complete dataset core gene clusters: ', nrow(core_genes))),
                                                      tags$label(h3('Number of core genes')),
+                                                     p('Description: Barplot showing the number of core-genes (genes in >90% of genomes) of each metadata group'),
+                                                     
                                                      plotlyOutput(outputId = "coreplot"),
                                                      tags$label(h3('Core COG profiles')),
+                                                     p('Description: Barplot showing the COG functional categories proportions of each metadata group core-genome'),
+                                                     
                                                      plotlyOutput(outputId = "corecogplot",width = '800px',height = '500px'),
                                                      tags$label(h3('Upset plot of core genes overlapping')),
+                                                     p('Description: The Upset plot displays the overlap of the core-genome among each metadata group.'),
+                                                     
                                                      plotOutput(outputId = "Upsetplot",width = '800px',height = '500px'),
                                                      
                                                      
@@ -207,7 +238,7 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                  tabPanel("STATISTICS",
                           h1("Statistics"),
                           sidebarLayout(position = 'left',
-                                        sidebarPanel(
+                                        sidebarPanel(width = 3,
                                           selectInput('data_for_stats', label = "Choose data to make statistics:", choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'PROKKA', 'DBCAN', 'GCF')),
                                           selectInput('column_for_stats', label = "Choose column to make statistics:", choices = mapping_options),
                                           uiOutput('inputs1'),
@@ -215,7 +246,11 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                                           actionButton("go", "Go"),
                                         ),
                                         mainPanel(
+                                          tags$label(h3('Lifestyle Associated Genes')),
+                                          p('Statistics alow users to compare the distribuitons of genes and BGCs among different metadata groups given by the users or obtained in the clustering module. Fisher test together with basic group prevalence statistics allows to find genes that exhibits a distinct pattern of presence for a specific group, while being largely absent in other groups'),
+                                          
                                           tabsetPanel(
+                                            
                                             tabPanel("Mapping file for stats:",
                                                      DT::dataTableOutput('tablemap'),
                                                      #box(title = "Mapping file for stats:", width = NULL, height = 1,solidHeader = T,  status = "primary",div(style = 'height:400px;overflow-y: scroll', tableOutput('table')))
@@ -231,7 +266,7 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                  tabPanel("GENE CLUSTER DISTRIBUTION",
                           h1('Check distribution of a gene cluster'),
                           sidebarLayout(position = 'left',
-                                        sidebarPanel(
+                                        sidebarPanel(width = 3,
                                           textInput('cluster2distribution', 'Choose cluster: ', value = ''),
                                           actionButton("checkdistribution", "Obtain distribution"),
                                         
@@ -241,6 +276,7 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                                         mainPanel(
                                           h1(' '),
                                           h3('PCoA with the distribution of the chosen gene cluster'),
+                                          p('This section allows users to view the distribution of particular gene clusters of interest through a Principal Coordinate Analysis. The cluster identification numbers are denoted as "cluster_xxxxxx" and can be acquired from the statistics section.'),
                                           uiOutput(outputId = "PCAplotgenedistribution",width = '800px',height = '2000px')
                                           
                                         )
@@ -253,7 +289,7 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                  tabPanel("DOWNLOAD FASTA",
                           h1('Download fasta sequences'),
                           sidebarLayout(position = 'left',
-                                        sidebarPanel(
+                                        sidebarPanel(width = 3,
                                           selectInput('data_for_msa', label = "Choose bacteria:", choices = as.list(c('All', unique(mapping_file$Sample) ))),
                                           selectInput('msacolumn', label = 'Choose database', choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'PROKKA', 'DBCAN')),
                                           textInput('msaid', 'Choose cluster: ', value = ''),
@@ -263,6 +299,8 @@ ui <- navbarPage("MICROLIFE", theme = shinytheme("flatly"),
                                         ),
                                         
                                         mainPanel(
+                                          h1(' '),
+                                          p('Users can download the sequence of gene clusters/COG/KEGG, PFAM, DBCAN identification numbers of their interest from this section, for all the bacteria in the dataset or specific ones.'),
                                           h1(' '),
                                           h1('Metadata '),
                                           DT::dataTableOutput('map_download'),
@@ -822,7 +860,7 @@ server <- function(input, output){
     results <- DT::datatable(
       results,
       extensions = c("Buttons"),
-      options = list(
+      options = list(scrollX = TRUE,
         dom = 'Bfrtip',
         buttons = list(
           list(extend = "excel", text = "Download Current Page", filename = "page",
@@ -935,13 +973,19 @@ server <- function(input, output){
     input_list <- randomVals()
     tagList(
       tags$label(h3('Table results')),
+      p('Description: Table displays the statistics of the performed contrast, with each row representing a gene cluster or database ID based on the chosen options. The columns show the results of a Fisher test and group relative abundance log-fold changes. Additionally, functional annotations of the gene cluster in various databases are included as columns. The table should be filtered base in user interests and research questions '),
+      
       DT::dataTableOutput('markdown'),
       tags$label(h3('Absence/presence plot all gene clusters')),
+      p('Description: The Bubble plot displays the distribution of all gene clusters in the selected groups for the contrast. The plot axes represent the relative abundance of each group in the comparison. The bubble size indicates the number of gene clusters that follow that distribution in both groups. Core genes shared between the two groups are located in the top right corner, while unique genes present in one or a few genomes are in the lower left corner. Gene clusters fully present in one group and fully absent in the other group are located in the top left and bottom right corners, respectively.'),
+      
       plotlyOutput('abspresplot',width = '700px',height = '500px'),
-      tags$label(h3('Absence/presence plot significant gene clusters')),
-      plotlyOutput('abspresplot2',width = '700px',height = '500px'),
-      tags$label(h3('Volcano plot')),
-      plotlyOutput('volcanoplot',width = '700px',height = '500px'),
+      #tags$label(h3('Absence/presence plot significant gene clusters')),
+      #plotlyOutput('abspresplot2',width = '700px',height = '500px'),
+      #tags$label(h3('Volcano plot')),
+      #p('Description: Volcano plot of the contrast chosen with genes with a p-value < 0.01 nad logfold > +-2  '),
+      
+      #plotlyOutput('volcanoplot',width = '700px',height = '500px'),
       tags$label(h3('COG profiles')),
       sliderInput('min_mean_difference', label = 'Minimum mean difference between groups:', min = 0, max = 1, step = 0.05, value = 0.5),
       plotlyOutput('bubbleplot',width = '1000px',height = '700px'))
@@ -961,6 +1005,7 @@ server <- function(input, output){
 }
 # Run the app ----
 shinyApp(ui = ui, server = server)
+
 
 
 
