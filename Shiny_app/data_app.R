@@ -11,8 +11,8 @@ listOfPackages <- c("shiny","readr","UpSetR","data.table","dplyr",
                     "dbscan","shinydashboard","scales","shinythemes",
                     "plotly","DT", "reshape2","ggplot2","gridExtra","gplots",
                    "gtools","RColorBrewer","viridis","rmarkdown", "ape",
-                   ,"heatmaply","pals","stringdist","tidyr",
-                   ,"stringr","parallelDist","hexbin", "parallel", "BiocManager")
+                   "heatmaply","pals","stringdist","tidyr",
+                   "stringr","parallelDist","hexbin", "parallel", "BiocManager")
 for (i in listOfPackages){
      if(! i %in% installed.packages()){
          install.packages(i, dependencies = TRUE)
