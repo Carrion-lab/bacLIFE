@@ -110,5 +110,6 @@ In order to initiate the shiny app, the following snakemake output files need to
 - intermediate_files/BiG-SCAPE/big_scape_binary_table_renamed.txt
 - intermediate_files/BiG-SCAPE/annotation.txt
 - intermediate_files/combined_proteins/combined_proteins.fasta
+- names_equivalence.txt
 
 After input preparation users can open the script "app.R" in Rstudio and click in the upper right 'run app' bottom to initiate the MicroLife app. 
