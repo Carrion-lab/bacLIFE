@@ -13,7 +13,7 @@ microLife is a streamlined computational workflow that annotates bacterial genom
 ![workflow](https://user-images.githubusercontent.com/69348873/231155358-7fbebb3c-f6f6-406a-989b-9d273b83aa1e.png)
 
 ## How to start using MicroLife
-### 1) Download MicroLife and install dependencies
+### Download MicroLife and install dependencies
 
 ```
  git clone https://github.com/Carrion-lab/microLife.git microLife
@@ -26,7 +26,7 @@ mamba env create -f ENVS/MicroLife_download.yml
 conda activate MicroLife_download
 ```
 
-### 2) Download genomes and reduce redundancy
+### Download genomes and reduce redundancy
 
 
 
