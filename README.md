@@ -96,7 +96,7 @@ MicroLife is written using the Snakemake workflow manager and it can be executed
 snakemake -j 24
 ```
 
-(`-j` specifies the number of CPU cores to use for the whole process. If this flag is ommitted, Snakemake will use all the available CPU cores in the machine)
+> (`-j` specifies the number of CPU cores to use for the whole process. If this flag is ommitted, Snakemake will use all the available CPU cores in the machine)
 
 #### Create your own metadata
 
@@ -118,7 +118,7 @@ ROC plots showing the model evaluation for the different classes present in the 
 If good accuracy is accomplished, the user can use the model for predictions of genomes labeled as 'Unknown' in the mapping file. The resulting augmented metadata is stored in the new file `mapping_file_augmented.txt`
 
 
-# MicroLife App (Analytical module)
+## MicroLife App (Analytical module)
 
 In order to initiate the shiny app, the following snakemake output files need to be droped in the 'Shiny_app/input/' directory.
 
