@@ -89,7 +89,7 @@ This script changes the name of the input genome files by replacing the strain n
 I.e Pseudomonas_fluorescens_FDAARGOS-1088.fna --> Pseudomonas_fluorescens_X0001.fna \
 The file "names_equivalence.txt" contains the correspondent name matching.
 
-### Executing clustering module
+### Executing Snakemake
 MicroLife is written using the Snakemake workflow manager and it can be executed using the following command from the main directory
 
 ```
