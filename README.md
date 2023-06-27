@@ -12,8 +12,8 @@ microLife is a streamlined computational workflow that annotates bacterial genom
 
 ![workflow](https://user-images.githubusercontent.com/69348873/231155358-7fbebb3c-f6f6-406a-989b-9d273b83aa1e.png)
 
-## How to start using MicroLife
-### Download MicroLife and install dependencies
+## How to start using microLife
+### Download microLife and install dependencies
 
 ```
  git clone https://github.com/Carrion-lab/microLife.git microLife
@@ -31,7 +31,7 @@ conda activate MicroLife_download
 
 
 #### Download the accession names 
-Retrieve a list of accesion IDs you are interested in processing with MicroLife (e.g All Mycobacterium RefSeq genomes) by extracting the SQL query (image below) from NCBI website search and integrating it in the following command:
+Retrieve a list of accesion IDs you are interested in processing with microLife (e.g All Mycobacterium RefSeq genomes) by extracting the SQL query (image below) from NCBI website search and integrating it in the following command:
 
 ```
 esearch -db assembly -query '("Mycobacterium"[Organism] OR Mycobacterium[All Fields]) AND ("latest refseq"[filter] AND all[filter] NOT anomalous[filter])' | esummary | xtract -pattern         DocumentSummary -element AssemblyAccession > NCBI_accs.txt
@@ -57,11 +57,11 @@ python main_script_download.py
 ```
 
 #### Making sure everything is ready
-Before starting MicroLife, you should have the following in your main directory (`microLife/download/`):
--   "genomes_renamed/": Directory where the non-redundant genomes with the filenames ready for MicroLife are stored.
+Before starting microLife, you should have the following in your main directory (`microLife/download/`):
+-   "genomes_renamed/": Directory where the non-redundant genomes with the filenames ready for microLife are stored.
 -   "METADATA_MERGED.txt": File with the following columns: 'scientific_name', 'NCBIid', 'cluster_membership', 'representative' and 'MicroLife_name'
 
-(Remember to deactivate the conda environment `MicroLife_download` if you want to jump to the next section (**"Executing MicroLife"**) right after this one!
+(Remember to deactivate the conda environment `MicroLife_download` if you want to jump to the next section (**"Executing microLife"**) right after this one!
 
 ## Executing clustering module
 ### Install dependencies necessary for MicroLife
@@ -85,12 +85,12 @@ mv download/genomes_renamed/* data/
 ```
 Rscript src/rename_genomes.R data/ names_equivalence.txt
 ```
-This script changes the name of the input genome files by replacing the strain name into a barcode to avoid MicroLife crashes \
+This script changes the name of the input genome files by replacing the strain name into a barcode to avoid microLife crashes \
 I.e Pseudomonas_fluorescens_FDAARGOS-1088.fna --> Pseudomonas_fluorescens_X0001.fna \
 The file "names_equivalence.txt" contains the correspondent name matching.
 
 ### Executing Snakemake
-MicroLife is written using the Snakemake workflow manager and it can be executed using the following command from the main directory
+microLife is written using the Snakemake workflow manager and it can be executed using the following command from the main directory
 
 ```
 snakemake -j 24
@@ -100,11 +100,11 @@ snakemake -j 24
 
 #### Create your own metadata
 
-To be able to run the Lifestyle prediction module and the Shiny app (next modules of the MicroLife pipeline) you have to make a `mapping_file.txt` for your genomes. You can find an example of the mapping file in the main folder {INSERT PATH}. It consists of a two column tab-separated file where the first column specifies the FASTA file name (as established in the `data/` directory) and the second column specifies the Lifestyle of that genome given by the user(WHEN DID THE USER DO THIS??). Genomes with no lifestyle information must be annotated as "Unknown".
+To be able to run the Lifestyle prediction module and the Shiny app (next modules of the microLife pipeline) you have to make a `mapping_file.txt` for your genomes. You can find an example of the mapping file in the main folder {INSERT PATH}. It consists of a two column tab-separated file where the first column specifies the FASTA file name (as established in the `data/` directory) and the second column specifies the Lifestyle of that genome given by the user(WHEN DID THE USER DO THIS??). Genomes with no lifestyle information must be annotated as "Unknown".
 
-#### MicroLife output
+#### microLife output
 
-The main (and very big) output of MicroLife is a file called `MEGAMATRIX_renamed.txt`, a matrix where each row represents one gene cluster and each column represents the presence of these clusters in the different genomes and their annotation in different databases
+The main (and very big) output of microLife is a file called `MEGAMATRIX_renamed.txt`, a matrix where each row represents one gene cluster and each column represents the presence of these clusters in the different genomes and their annotation in different databases
 
 
 ## Lifestyle prediction module
@@ -118,7 +118,7 @@ ROC plots showing the model evaluation for the different classes present in the 
 If good accuracy is accomplished, the user can use the model for predictions of genomes labeled as 'Unknown' in the mapping file. The resulting augmented metadata is stored in the new file `mapping_file_augmented.txt`
 
 
-## MicroLife App (Analytical module)
+## microLife App (Analytical module)
 
 In order to initiate the shiny app, the following snakemake output files need to be droped in the 'Shiny_app/input/' directory.
 
@@ -130,6 +130,6 @@ In order to initiate the shiny app, the following snakemake output files need to
 -   `intermediate_files/combined_proteins/combined_proteins.fasta`
 -   `names_equivalence.txt`
 
-After having prepared these input files, users can open the script `app.R` in Rstudio and click in the upper right '**run app**' button to initiate the MicroLife app and enjoy visualizing all their results!
+After having prepared these input files, users can open the script `app.R` in Rstudio and click in the upper right '**run app**' button to initiate the microLife app and enjoy visualizing all their results!
 
 > Written with [StackEdit](https://stackedit.io/).
