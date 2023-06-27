@@ -132,4 +132,4 @@ In order to initiate the shiny app, the following snakemake output files need to
 
 After having prepared these input files, users can open the script `app.R` in Rstudio and click in the upper right '**run app**' button to initiate the microLife app and enjoy visualizing all their results!
 
-An example of the app with a demo dataset (genomes present in (`data`) is available at [http://178.128.251.24:3838/microLife_linux]
+An example of the app with a demo dataset (genomes present in `data`) is available at [http://178.128.251.24:3838/microLife_linux]
