@@ -103,7 +103,7 @@ snakemake -j 24
 
 To be able to run the Lifestyle prediction module and the Shiny app (next modules of the microLife pipeline) you have to modify the `mapping_file.txt` file. This file is generated at the end of the clustering module. It consists of a two column tab-separated file where the first column specifies the genome name (as established in the `data/` directory) and the second column specifies the Lifestyle of that genome. Every genome lifestyle is annotated as 'Unknown' when the file is generated. User have to manually annotate the genomes with their information of interest. Genomes with no lifestyle information must be annotated as "Unknown". Note that additional columns can be added to the file with other metadata information.
 
-#### microLife outputs
+### microLife outputs
 Two primary outputs, namely `MEGAMATRIX_renamed.txt` and `big_scape_binary_table_renamed.txt`, are generated in the main folder. `MEGAMATRIX_renamed.txt` is a matrix where each row represents a gene cluster, and each column represents the presence of these clusters in different genomes, along with their annotations from different databases. Similarly, `big_scape_binary_table_renamed.txt` is a matrix where each row represents a Gene Cluster Family (GCF) or a cluster of Biosynthetic Gene Clusters (BGCs), and each column represents the presence of these clusters in different genomes. 
 
 Intermediate outputs are stored in the intermediate_files/ directory. Within this folder, the annot/ subdirectory contains the prokka outputs for each genome. These outputs include annotation files such as `.gbk`, `.faa`, `.gff`, and `.ffn`, among others. Similarly, the `antismash/` folder contains the antiSMASH results for each genome. 
