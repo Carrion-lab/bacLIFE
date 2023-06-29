@@ -61,7 +61,7 @@ Before starting microLife, you should have the following in your main directory 
 -   "genomes_renamed/": Directory where the non-redundant genomes with the filenames ready for microLife are stored.
 -   "METADATA_MERGED.txt": File with the following columns: 'scientific_name', 'NCBIid', 'cluster_membership', 'representative' and 'MicroLife_name'
 
-(Remember to deactivate the conda environment `MicroLife_download` if you want to jump to the next section (**"Executing microLife"**) right after this one!
+> (Remember to deactivate the conda environment `MicroLife_download` if you want to jump to the next section (**"Executing microLife"**) right after this one!)
 
 ## Executing clustering module
 ### Install dependencies necessary for MicroLife
@@ -79,8 +79,7 @@ If genomes were downloaded as described in the previous section **'Download geno
 ```
 mv download/genomes_renamed/* data/
 ```
-
-*In the genome format name, the user must avoid adding any special characters, that is not a alphabet letter, number , dash or dot. This applies specially to the strain name which also should be of less than 10 characters long. 
+ 
 
 To run microLife with your own genomes they should follow the format "*Genus_species_strain_O.fna*"* and be stored in the `data/`. Then, you  must use the script *src/rename_genomes.R* to change the input genome strain names into a MicroLife friendly format in the following way:
 ```
@@ -90,6 +89,7 @@ This script changes the name of the input genome files by replacing the strain n
 I.e Pseudomonas_fluorescens_FDAARGOS-1088.fna --> Pseudomonas_fluorescens_X0001.fna \
 The file "names_equivalence.txt" contains the correspondent name matching and needs to be present in the main directory before running microLife. If you downloadede your genomes as described above, the file `names_equivalence.txt`is already present in the main folder.
 
+> (*In the genome format name, the user must avoid adding any special characters, that is not a alphabet letter, number , dash or dot. This applies specially to the strain name which also should be of less than 10 characters long.)
 ### Executing Snakemake
 microLife is written using the Snakemake workflow manager and it can be executed using the following command from the main directory
 
