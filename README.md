@@ -75,20 +75,20 @@ conda activate MicroLife_environment
 
 ### Prepare input files
 The input must be FASTA assemblies stored in the `data/` directory, all with name that should follow the format "*Genus_species_strain_O.fna*". *
-If genomes were downloaded as described in the previous section **'Download genomes and reduce redundancy'**, the folder directory `download/genomes_renamed/` already contains the genome files in the correct name format and they only have to be moved to the `data/` folder.
+If genomes were downloaded as described in the previous section **'Download genomes and reduce redundancy'**, the folder directory `download/genomes_renamed/` already contains the genome files in the correct name format and they only have to be moved to the `data/` folder .
 ```
 mv download/genomes_renamed/* data/
 ```
 
 *In the genome format name, the user must avoid adding any special characters, that is not a alphabet letter, number , dash or dot. This applies specially to the strain name which also should be of less than 10 characters long. 
 
-Users must use the script *src/rename_genomes.R* to change the input genome strain names into a MicroLife friendly format in the following way:
+To run microLife with your own genomes they should follow the format "*Genus_species_strain_O.fna*"* and be stored in the `data/`. Then, you  must use the script *src/rename_genomes.R* to change the input genome strain names into a MicroLife friendly format in the following way:
 ```
 Rscript src/rename_genomes.R data/ names_equivalence.txt
 ```
 This script changes the name of the input genome files by replacing the strain name into a barcode to avoid microLife crashes \
 I.e Pseudomonas_fluorescens_FDAARGOS-1088.fna --> Pseudomonas_fluorescens_X0001.fna \
-The file "names_equivalence.txt" contains the correspondent name matching.
+The file "names_equivalence.txt" contains the correspondent name matching and needs to be present in the main directory before running microLife. If you downloadede your genomes as described above, the file `names_equivalence.txt`is already present in the main folder.
 
 ### Executing Snakemake
 microLife is written using the Snakemake workflow manager and it can be executed using the following command from the main directory
