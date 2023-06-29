@@ -98,17 +98,15 @@ snakemake -j 24
 
 > (`-j` specifies the number of CPU cores to use for the whole process. If this flag is ommitted, Snakemake will use all the available CPU cores in the machine)
 
-#### Create your own metadata
+### Generate metadata
 
-To be able to run the Lifestyle prediction module and the Shiny app (next modules of the microLife pipeline) you have to make a `mapping_file.txt` for your genomes. You can find an example of the mapping file in the main folder {INSERT PATH}. It consists of a two column tab-separated file where the first column specifies the FASTA file name (as established in the `data/` directory) and the second column specifies the Lifestyle of that genome given by the user(WHEN DID THE USER DO THIS??). Genomes with no lifestyle information must be annotated as "Unknown".
+To be able to run the Lifestyle prediction module and the Shiny app (next modules of the microLife pipeline) you have to modify the `mapping_file.txt` file. This file is generated at the end of the clustering module. It consists of a two column tab-separated file where the first column specifies the genome name (as established in the `data/` directory) and the second column specifies the Lifestyle of that genome. Every genome lifestyle is annotated as 'Unknown' when the file is generated. User have to manually annotate the genomes with their information of interest. Genomes with no lifestyle information must be annotated as "Unknown". Note that additional columns can be added to the file with other metadata information.
 
-#### microLife output
-
-The main (and very big) output of microLife is a file called `MEGAMATRIX_renamed.txt`, a matrix where each row represents one gene cluster and each column represents the presence of these clusters in the different genomes and their annotation in different databases
-
+#### microLife outputs
+Two primary outputs, namely MEGAMATRIX_renamed.txt and big_scape_binary_table_renamed.txt, are generated in the main folder. MEGAMATRIX_renamed.txt is a matrix where each row represents a gene cluster, and each column represents the presence of these clusters in different genomes, along with their annotations from different databases. Similarly, big_scape_binary_table_renamed.txt is a matrix where each row represents a Gene Cluster Family (GCF) or a cluster of Biosynthetic Gene Clusters (BGCs), and each column represents the presence of these clusters in different genomes. Intermediate outputs are stored in the intermediate_files/ directory. Within this folder, the annot/ subdirectory contains the prokka outputs for each genome. These outputs include annotation files such as .gbk, .faa, .gff, and .ffn, among others. Similarly, the antismash folder contains the antiSMASH results for each genome. 
 
 ## Lifestyle prediction module
-The user can test the predictability of their metadata (WHY WOULD THE USER WANT THIS?) with the machine learning model random forest using the script `src/classifier.R` and specifying the location of `mapping_file.txt` and `MEGAMATRIX_renamed.txt` in addition to the column name of the metadata variable that the user wants to predict
+The user can test the predictability of their metadata  with the machine learning model random forest using the script `src/classifier.R` and specifying the location of `mapping_file.txt` and `MEGAMATRIX_renamed.txt` in addition to the column name of the metadata variable that the user wants to predict
 
 ```
 Rscript classifier_src/classifier.R mapping_file.txt MEGAMATRIX_renamed.txt Lifestyle
@@ -130,6 +128,7 @@ In order to initiate the shiny app, the following snakemake output files need to
 -   `intermediate_files/combined_proteins/combined_proteins.fasta`
 -   `names_equivalence.txt`
 
-After having prepared these input files, users can open the script `app.R` in Rstudio and click in the upper right '**run app**' button to initiate the microLife app and enjoy visualizing all their results!
+After having prepared these input files, users should move the working directory to `Shiny_app/` and open the script `app.R` in Rstudio and click in the upper right '**run app**' button to initiate the microLife app and enjoy visualizing all their results!
+Note that user may move the `Shiny_app/` folder and all its content to a local computer and lunch Rstudio locally.
 
 An example of the app with a demo dataset (genomes present in `data`) is available at [http://178.128.251.24:3838/microLife_linux]
