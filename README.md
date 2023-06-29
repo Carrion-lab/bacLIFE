@@ -80,8 +80,9 @@ If genomes were downloaded as described in the previous section **'Download geno
 mv download/genomes_renamed/* data/
 ```
 
-*In the genome format name, the user must avoid adding any special characters, that is not a alphabet letter, number , dash or dot. This applies specially to the strain name which also should be of less than 10 characters long. Users may use the script *src/rename_genomes.R* to change the input genome strain names into a MicroLife friendly format in the following way:
+*In the genome format name, the user must avoid adding any special characters, that is not a alphabet letter, number , dash or dot. This applies specially to the strain name which also should be of less than 10 characters long. 
 
+Users must use the script *src/rename_genomes.R* to change the input genome strain names into a MicroLife friendly format in the following way:
 ```
 Rscript src/rename_genomes.R data/ names_equivalence.txt
 ```
@@ -104,6 +105,7 @@ To be able to run the Lifestyle prediction module and the Shiny app (next module
 
 #### microLife outputs
 Two primary outputs, namely `MEGAMATRIX_renamed.txt` and `big_scape_binary_table_renamed.txt`, are generated in the main folder. `MEGAMATRIX_renamed.txt` is a matrix where each row represents a gene cluster, and each column represents the presence of these clusters in different genomes, along with their annotations from different databases. Similarly, `big_scape_binary_table_renamed.txt` is a matrix where each row represents a Gene Cluster Family (GCF) or a cluster of Biosynthetic Gene Clusters (BGCs), and each column represents the presence of these clusters in different genomes. 
+
 Intermediate outputs are stored in the intermediate_files/ directory. Within this folder, the annot/ subdirectory contains the prokka outputs for each genome. These outputs include annotation files such as `.gbk`, `.faa`, `.gff`, and `.ffn`, among others. Similarly, the `antismash/` folder contains the antiSMASH results for each genome. 
 
 ## Lifestyle prediction module
