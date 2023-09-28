@@ -14,10 +14,8 @@ library(dplyr)
 library(stats)
 library(tidyverse)
 library(ggplot2)
+library(data.table)
 
-#Set Working Directory
-#setwd('/Results_I')
-#ex:setwd("E:/NACTAR")
 
 args = commandArgs(trailingOnly=TRUE)
 "Import Data Tables from BiG-SCAPE"
@@ -66,3 +64,33 @@ merged_annotations<- merged_annotations[,c(2,4)]
 merged_annotations <- distinct(merged_annotations)
 
 write.csv(merged_annotations, args[6], row.names = F)
+
+
+
+###Obtain BGC_descriptions
+
+clusters = read_tsv(args[1], col_names = F, comment = '#')
+clusters$X2 = paste0('GCF', clusters$X2)
+
+M = merge(clusters, annotations_df_full, by.x = 'X1', by.y = 'BGC')
+M$Taxonomy = NULL
+colnames(M)[1] = 'GCF'
+
+names_equivalence =  read.table(args[7], header = T)
+names_equivalence$MicroLife_name = sapply(strsplit(names_equivalence$MicroLife_name,"_"), `[`, 3)
+
+M$bacteriaid  = sapply(strsplit(M$Accession.ID,"_"), `[`, 1)
+MM = merge(M, names_equivalence, by.x = 'bacteriaid', by.y = 'MicroLife_name', all.x = T)
+MM = data.table(MM)
+MM[!is.na(MM$Full_name)]$Organism = MM[!is.na(MM$Full_name)]$Full_name
+MM$Full_name =NULL
+MM$bacteriaid = NULL
+
+
+MM$Accession.ID = MM$GCF
+MM$GCF = NULL 
+colnames(MM)[1] = 'GCF'
+
+
+
+write.table(MM, 'intermediate_files/BiG-SCAPE/bigscape_output/BGC_descriptions.txt', col.names = T, row.names = F, quote = F, sep = '\t')
