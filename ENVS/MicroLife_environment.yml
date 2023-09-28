@@ -7,7 +7,7 @@ channels:
 dependencies:
     - bioconductor-genomeinfodbdata=1.2.7
     - blast
-    - scikit-learn
+    - phylophlan
     - snakemake
     - scipy
     - biopython
@@ -22,7 +22,6 @@ dependencies:
     - bioconductor-biostrings
     - r-proc
     - r-readr
-    - r-paralleldist
     - r-stringr
     - r-upsetr  
     - r-dplyr
