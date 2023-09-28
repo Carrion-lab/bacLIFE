@@ -2,13 +2,18 @@ GENUS, SPECIES, STR, REPLICON = glob_wildcards("data/{genus}_{species}_{str}_{re
 TEMP_DIR = 'intermediate_files/combined_proteins'
 COMBINED_PROTEINS = os.path.join(TEMP_DIR,'combined_proteins.fasta')
 
-configfile: "config.json"
 
 COMPARISON_DIR = "intermediate_files/clustering"
 CLUSTERING_BINARY_TABLE = 'intermediate_files/clustering/binary_matrix.txt'
 CLUSTERING_FASTA = 'intermediate_files/clustering/protein_cluster'
 
+configfile: "config.json"
 THREADS = config['threads']
+MCL_INFLATION = config['mcl_inflation_value']
+LINCLUST_IDENTITY = config['linclust_identity']
+
+
+
 
 
 GENBANKFILES, = glob_wildcards("intermediate_files/annot/{genome}.gbk")
@@ -49,7 +54,8 @@ rule final:
             bigscape_setup = "intermediate_files/BiG-SCAPE/bigscape.py",
             bigscape = BIGSCAPE,
             binary_table_GCF = 'intermediate_files/BiG-SCAPE/big_scape_binary_table.txt',
-            rename_matrix = 'MEGAMATRIX_renamed.txt'
+            rename_matrix = 'MEGAMATRIX_renamed.txt',
+            phylophlan = "intermediate_files/phylophlan/output_phylophlan/RAxML_bestTree.input_refined.tre"
             
 rule directories:
         input:
@@ -57,8 +63,7 @@ rule directories:
         params:
             annot = "intermediate_files/annot/",
             antismash = "intermediate_files/antismash/",
-            eggnog = "intermediate_files/eggnog_annotation/",
-            mapper = "intermediate_files/mapper_data/"
+            eggnog = "intermediate_files/eggnog_annotation/"
         output:
             chk = ".mkdir.chkpnt"
         run:
@@ -82,7 +87,7 @@ rule Prokka_annotation:
         threads: THREADS
         priority: 100
         run:
-                shell('prokka --force --outdir {params.outdir} --prefix {params.prefix} --locustag {params.str} --addgenes --increment 5 --centre NIOO-KNAW --genus {params.genus} --species {params.species} --str {params.str} --gcode 11 --cpus 20 --evalue 1e-03 --rfam {input.file}')
+                shell('prokka --force --outdir {params.outdir} --prefix {params.prefix} --locustag {params.str} --addgenes --increment 5 --centre NIOO-KNAW --genus {params.genus} --species {params.species} --str {params.str} --gcode 11 --cpus {THREADS} --evalue 1e-03 --rfam {input.file}')
 
 rule extract_proteins:
     input: rules.Prokka_annotation.output.prokka
@@ -127,6 +132,7 @@ rule clustering:
         binary_table = CLUSTERING_BINARY_TABLE,
         fasta = CLUSTERING_FASTA
     params:
+        mmseq_identity = LINCLUST_IDENTITY,
         mmseq_db = 'intermediate_files/clustering/mmseqDB',
         mmseq_db_clu = 'intermediate_files/clustering/mmseqDB_clu',
         mmseq_temp = 'intermediate_files/clustering/mmseqDB_temp',
@@ -141,7 +147,8 @@ rule clustering:
         diamond_results_clean = 'intermediate_files/clustering/diamond_results_clean',
         mcl_data = 'intermediate_files/clustering/mcl_data.mci',
         mcl_tab = 'intermediate_files/clustering/mcl_tab.tab',
-        mcl_clusters= 'intermediate_files/clustering/out.mcl_data.mci.I30',
+        mcl_infaltion = MCL_INFLATION,
+        mcl_clusters= 'intermediate_files/clustering/out.mcl_data.mci',
         
     run:
         #Extract gene lengths
@@ -149,7 +156,7 @@ rule clustering:
         
         #Run mmseq2 clustering to 0.95
         shell('mmseqs createdb {input} {params.mmseq_db}')
-        shell('mmseqs cluster {params.mmseq_db} {params.mmseq_db_clu} {params.mmseq_temp} --min-seq-id 0.95 --cov-mode 0 -c 0.8')
+        shell('mmseqs cluster {params.mmseq_db} {params.mmseq_db_clu} {params.mmseq_temp} --min-seq-id {params.mmseq_identity} --cov-mode 0 -c 0.8')
         shell('mmseqs createtsv {params.mmseq_db} {params.mmseq_db} {params.mmseq_db_clu} {params.mmseq_tsv}')
         
         #Extract mmseq2 representatives
@@ -168,8 +175,8 @@ rule clustering:
         
         ### Run MCL
         shell('mcxload -abc {params.diamond_results_clean} --stream-mirror -o {params.mcl_data} -write-tab {params.mcl_tab}')
-        shell('mcl {params.mcl_data} -I 3.0 -use-tab {params.mcl_tab}')
-        shell('mv out.mcl_data.mci.I30 intermediate_files/clustering/')
+        shell('mcl {params.mcl_data} -I {params.mcl_infaltion} -use-tab {params.mcl_tab} -o {params.mcl_clusters}')
+        #shell('mv {params.mcl_clusters} intermediate_files/clustering/')
         
         ##Generate matrix
 
@@ -197,14 +204,11 @@ rule pfam:
     input:
             rules.clustering.output.fasta
     output:
-            pfam = PFAM_ANNOTATION,
-            pfam_hmm = 'intermediate_files/PFAM/Pfam-A.hmm'
+            pfam = PFAM_ANNOTATION
+            
     message: 'executing pfam.'
     run:
-        shell('wget -P ./intermediate_files/PFAM/ ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam33.1/Pfam-A.hmm.gz')
-        shell('gunzip intermediate_files/PFAM/Pfam-A.hmm.gz' )
-        shell('hmmpress intermediate_files/PFAM/Pfam-A.hmm')
-        shell('hmmsearch --tblout {output.pfam} --cpu 30 -E 1e-5 ./intermediate_files/PFAM/Pfam-A.hmm {input}')
+        shell('hmmsearch --tblout {output.pfam} --cpu {THREADS} -E 1e-5 ./intermediate_files/PFAM/Pfam-A.hmm {input}')
 
 rule EGGNOG:
     input:
@@ -214,8 +218,7 @@ rule EGGNOG:
     output:
         EGGNOG_ANNOTATION
     run:
-        shell('download_eggnog_data.py -y --data_dir {params.data}')
-        shell('emapper.py -i {input} --cpu 25 -o intermediate_files/eggnog_annotation/eggnog_annotation --data_dir {params.data} --pident 30 --query_cover 50 --subject_cover 50 --report_orthologs')
+        shell('emapper.py -i {input} --cpu {THREADS} -o intermediate_files/eggnog_annotation/eggnog_annotation --data_dir {params.data} --pident 30 --query_cover 50 --subject_cover 50 --report_orthologs')
 
 rule KEGG_COG:
     input:
@@ -241,8 +244,7 @@ rule dbCAN:
         output:
                 dbcan = DBCAN_ANNOTATION
         run:
-            shell('wget -P ./intermediate_files/DBCAN/ http://bcb.unl.edu/dbCAN2/download/dbCAN-HMMdb-V9.txt')
-            shell('hmmsearch --tblout {output} -E 1e-5 ./intermediate_files/DBCAN/dbCAN-HMMdb-V9.txt {input}')
+            shell('hmmsearch --tblout {output} -E 1e-5 --cpu {THREADS} ./intermediate_files/DBCAN/dbCAN-HMMdb-V9.txt {input}')
 
 rule process_hmm_annotations:
     input:
@@ -281,23 +283,12 @@ rule antismash:
         shell:
             'set +u; source /opt/miniconda3/etc/profile.d/conda.sh; conda activate antismash_microlife; set -u; antismash --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} -c {params.threads} --asf --pfam2go --genefinding-tool prodigal --smcog-trees {input}'
 
-rule bigscape_setup:
-        input:
-                antismash= rules.directories.output,
-                pfam_hmm = rules.pfam.output.pfam_hmm
-        output:
-                "intermediate_files/BiG-SCAPE/bigscape.py"
-        run:
-                shell('git clone https://github.com/medema-group/BiG-SCAPE.git')
-                shell('mv BiG-SCAPE intermediate_files/')
-                
-                shell('rm intermediate_files/BiG-SCAPE/bigscape.py')
-                shell('cp src/bigscape.py intermediate_files/BiG-SCAPE/')
+
 
 rule bigscape_exe:
         input: 
-            antismash = rules.directories.output,
-            setup = rules.bigscape_setup.output
+            antismash = expand(rules.antismash.output, zip, genus = GENUS, species = SPECIES, str = STR, replicon = REPLICON),
+            pfam_hmm = 'intermediate_files/PFAM/Pfam-A.hmm'
         output:
             html = 'intermediate_files/BiG-SCAPE/bigscape_output/index.html',
             clustering = 'intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal/mix/mix_clustering_c0.70.tsv',
@@ -308,8 +299,10 @@ rule bigscape_exe:
             outdir = 'intermediate_files/BiG-SCAPE/bigscape_output/',
             threads = THREADS,
             indir = rules.directories.params.antismash
-        shell:
-            "set +u; source /opt/miniconda3/etc/profile.d/conda.sh; conda activate bigscape_microlife; set -u; python ./intermediate_files/BiG-SCAPE/bigscape.py -i {params.indir} -o {params.outdir} --pfam_dir intermediate_files/PFAM/ --mode glocal --mibig --cutoffs 0.3 0.7 --include_singletons --cores {params.threads} --mix"
+        run:
+            shell("set +u; source /opt/miniconda3/etc/profile.d/conda.sh; conda activate bigscape_microlife; set -u; python ./intermediate_files/BiG-SCAPE/bigscape.py -i {params.indir} -o {params.outdir} --pfam_dir intermediate_files/PFAM/ --mode glocal --mibig --cutoffs 0.3 0.7 --include_singletons --cores {params.threads} --mix")
+            shell("rm -r intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal")
+            shell("mv intermediate_files/BiG-SCAPE/bigscape_output/network_files/*hybrids_glocal intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal")
 
 rule extract_binary_table_GCF:
     input:
@@ -319,7 +312,8 @@ rule extract_binary_table_GCF:
     params:
         output_code_I_network = "intermediate_files/BiG-SCAPE/mix_filtered.network",
         output_code_I_annotations = 'intermediate_files/BiG-SCAPE/GCF_annotation.txt',
-        output_code_II = 'intermediate_files/BiG-SCAPE/abs_pres_table.csv',  
+        output_code_II = 'intermediate_files/BiG-SCAPE/abs_pres_table.csv',
+        names = 'names_equivalence.txt'
     output:
         filtered_network = "intermediate_files/BiG-SCAPE/mix_filtered.network",
         annotations = 'intermediate_files/BiG-SCAPE/annotation.txt',
@@ -327,7 +321,7 @@ rule extract_binary_table_GCF:
         abs_presence_list = 'intermediate_files/BiG-SCAPE/abs_pres_table.csv',
         binary_matrix = 'intermediate_files/BiG-SCAPE/big_scape_binary_table.txt'
     run:
-        shell("Rscript src/I-BIGSCAPE_revision.R {input.clustering} {input.network} {input.annotations} intermediate_files/BiG-SCAPE/mix_filtered.network intermediate_files/BiG-SCAPE/GCF_annotation.txt {output.annotations}")
+        shell("Rscript src/I-BIGSCAPE_revision.R {input.clustering} {input.network} {input.annotations} intermediate_files/BiG-SCAPE/mix_filtered.network intermediate_files/BiG-SCAPE/GCF_annotation.txt {output.annotations} {params.names}")
         shell("python src/II_Absence_Presence.py intermediate_files/BiG-SCAPE/GCF_annotation.txt intermediate_files/BiG-SCAPE/abs_pres_table.csv ")
         shell("Rscript src/III_Absence_Presence_GCF.R intermediate_files/BiG-SCAPE/abs_pres_table.csv {output.binary_matrix}")
 
@@ -345,3 +339,30 @@ rule rename_MEGAMATRIX:
         'names_equivalence.txt'
     run:
         shell('Rscript src/rename_MEGAMATRIX.R {input.genes} {input.BGCs} {params} {output.genes} {output.BGCs} {output.mapping_file}')
+        
+
+
+rule phylophlan:
+    input:
+        config = "src/supermatrix_aa.cfg",
+        to_order= rules.extract_binary_table_GCF.output.binary_matrix
+    params:
+        database = config['phylo_database'],
+        in_file = "intermediate_files/phylophlan/input"
+    output:
+        out_tree = "intermediate_files/phylophlan/output_phylophlan/RAxML_bestTree.input_refined.tre",
+        #out_dir = "intermediate_files/phylophlan/output_phylophlan"
+    log: "log/phylophlan.log"
+    run:
+        shell("mkdir -p intermediate_files/phylophlan/")
+        shell("mkdir -p intermediate_files/phylophlan/input/")
+        shell("mkdir -p intermediate_files/phylophlan/output_phylophlan/")
+        shell("cp -r intermediate_files/annot/*/*O.faa intermediate_files/phylophlan/input/")
+        shell("phylophlan -i {params.in_file} -d {params.database} --diversity low -f {input.config} --nproc {THREADS} --output_folder intermediate_files/phylophlan/output_phylophlan/ --databases_folder src/phylophlan_db")
+        shell("mv intermediate_files/phylophlan/output_phylophlan/input_{params.database}/* intermediate_files/phylophlan/output_phylophlan/")
+        shell("rm -r intermediate_files/phylophlan/output_phylophlan/input_{params.database}")
+       
+
+
+        
+        
