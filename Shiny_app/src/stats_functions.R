@@ -523,7 +523,6 @@ COG_significative_genes <- function(result, cog, min, db){
   
   result$mean_difference <- (result[,colnames(result)[column1]] - result[,colnames(result)[column2]])
   result <- result[result$mean_difference > min | result$mean_difference < -min,]
-  result <- result[result$pvalue_adj_fisher < 0.01,]
   
   result <- data.table(result)
   result[is.na(result$cogid)]$cogid <- 'Unknown'
