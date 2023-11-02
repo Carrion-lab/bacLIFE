@@ -1,3 +1,7 @@
 {
-    "threads" : 24
+    "threads" : 24,
+    "mcl_inflation_value": 3.0,
+    "linclust_identity": 0.95,
+    "phylo_database" : "amphora2"
 }
+
