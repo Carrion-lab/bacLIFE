@@ -61,7 +61,10 @@ os.system(cmd)
 cmd = "mv %s.md5 src/phylophlan_db/%s.md5" % (phylo_database_value, phylo_database_value)
 os.system(cmd)
 
+cmd = "phylophlan_write_default_configs.sh"
+os.system(cmd)
 
+cmd = "mv super* src/"
 
 
 
