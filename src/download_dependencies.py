@@ -65,7 +65,7 @@ cmd = "phylophlan_write_default_configs.sh"
 os.system(cmd)
 
 cmd = "mv super* src/"
-
+os.system(cmd)
 
 
 
