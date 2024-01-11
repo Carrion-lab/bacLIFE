@@ -1,4 +1,4 @@
-name: MicroLife_environment
+name: bacLIFE_environment
 channels:
     - conda-forge
     - bioconda
