@@ -1,4 +1,4 @@
-name: antismash_microlife
+name: bacLIFE_microlife
 channels:
   - bioconda
   - conda-forge
