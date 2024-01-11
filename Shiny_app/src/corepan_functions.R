@@ -30,7 +30,7 @@ extract_sequences_fasta <- function(matrix, all_proteins, db, bacteria, id, name
   }
   
   #names_equivalence = read.table('names_equivalence.txt', header = T)
-  names_equivalence$MicroLife_name = str_remove(names_equivalence$MicroLife_name, '_O.fna')
+  names_equivalence$bacLIFE_name = str_remove(names_equivalence$bacLIFE_name, '_O.fna')
   names_equivalence$Full_name = str_remove(names_equivalence$Full_name, '_O.fna')
   
   gene_list = character()
@@ -45,7 +45,7 @@ extract_sequences_fasta <- function(matrix, all_proteins, db, bacteria, id, name
   }
   if (bacteria %!in% 'All'){
     df = data.frame(fasta_name = gene_list, bacteria_name = sapply(strsplit(gene_list,"[|]"), `[`, 1))
-    df = merge(df, names_equivalence, by.x = 'bacteria_name', by.y = 'MicroLife_name')
+    df = merge(df, names_equivalence, by.x = 'bacteria_name', by.y = 'bacLIFE_name')
     df_sub = data.table(df)
     gene_list_one_bacteria = df_sub[df_sub$Full_name %in% bacteria]$fasta_name
     to_extract = all_proteins[gene_list_one_bacteria]
@@ -628,11 +628,3 @@ network_cytoscape <- function(tree, mapping_file, column, id, db){
   
   
 }
-
-
-
-
-
-
-
-
