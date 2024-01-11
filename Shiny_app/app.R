@@ -36,7 +36,7 @@ source('data_app.R')
 
 
 # Define UI ----
-ui <- navbarPage("microLife", theme = shinytheme("flatly"),
+ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                  tabPanel('INTRODUCTION',
                           sidebarLayout(position = 'left',
                                         sidebarPanel(width = 3,p('Authors: Guillermo Guerrero; Adrian Pintado & Victor Carrion'),
@@ -50,12 +50,12 @@ ui <- navbarPage("microLife", theme = shinytheme("flatly"),
                                         ),
                                         
                                         mainPanel(width = 7,
-                                                  h1(tags$b('Welcome to microLife!')),
+                                                  h1(tags$b('Welcome to bacLIFE!')),
                                                   p(introduction ),
                                                   imageOutput('image1',  height = '400px', width= '850px'),
                                                   
-                                                  h1(tags$b('microLife App')),
-                                                  p( style="text-align: justify", microLife_app),
+                                                  h1(tags$b('bacLIFE App')),
+                                                  p( style="text-align: justify", bacLIFE_app),
                                                   h3(tags$b('Exploration')),
                                                   p(style="text-align: justify",exploration),
                                                   h3(tags$b('Clustering')),
@@ -70,7 +70,7 @@ ui <- navbarPage("microLife", theme = shinytheme("flatly"),
                                                   p(style="text-align: justify",downloadfasta),
                                                   
                                                   
-                                                  p(style="text-align: justify","microLife was created by the CarrionLab of the Institute of Biology Leiden's  (IBL) plant-microbiome interaction department."),
+                                                  p(style="text-align: justify","bacLIFE was created by the CarrionLab of the Institute of Biology Leiden's  (IBL) plant-microbiome interaction department."),
                                                   headerPanel(""),
                                                   headerPanel(""),
                                                   fluidRow(
@@ -200,7 +200,7 @@ ui <- navbarPage("microLife", theme = shinytheme("flatly"),
                                                                         
                                                                         h4(tags$b('Optimal number of clusters')),
                                                                         
-                                                                        p(style="text-align: justify",'Description: Within groups sum of squares using 1-15 clusters. This value should be orientative in finding the optimal number of bacterial clusters based in microLife gene cluster absence/presence matrix. '),
+                                                                        p(style="text-align: justify",'Description: Within groups sum of squares using 1-15 clusters. This value should be orientative in finding the optimal number of bacterial clusters based in bacLIFE gene cluster absence/presence matrix. '),
                                                                         
                                                                         plotOutput(outputId = "optimalclusters",width = '500px',height = '300px'),
                                                                         h4(tags$b('KNN clusters PCoA plot')),
@@ -465,7 +465,7 @@ server <- function(input, output){
   
   
   output$image1 <- renderImage({
-    list(src='www/Microlife_wokflow.png', height = '400px', width= '850px')
+    list(src='www/bacLIFE_wokflow.png', height = '400px', width= '850px')
   },  deleteFile = F)
   
   output$image2 <- renderImage({
@@ -1002,7 +1002,7 @@ server <- function(input, output){
     system(cmd)
     mash_results = read.table('tmp/output_mash.txt')
     mash_results = mash_results[,c(1,3,4,5)]
-    colnames(mash_results)= c('microLife genome', 'ANI', 'p-value', 'markers')
+    colnames(mash_results)= c('bacLIFE genome', 'ANI', 'p-value', 'markers')
     mash_results$ANI = as.numeric(mash_results$ANI)
     mash_results$`p-value` = as.numeric(mash_results$`p-value`)
     mash_results = mash_results[order(mash_results$ANI, decreasing= T),]
@@ -1017,11 +1017,11 @@ server <- function(input, output){
     mash_table = input_genome_mash()
     
     
-    mash_table$`microLife genome` = str_remove(mash_table$`microLife genome`, './')
-    mash_table = merge(names_equivalence, mash_table, by.x = 'MicroLife_name', by.y = 'microLife genome')
+    mash_table$`bacLIFE genome` = str_remove(mash_table$`bacLIFE genome`, './')
+    mash_table = merge(names_equivalence, mash_table, by.x = 'bacLIFE_name', by.y = 'bacLIFE genome')
     mash_table$Full_name = str_remove(mash_table$Full_name, '_O.fna')
-    mash_table$MicroLife_name = NULL
-    colnames(mash_table)[1] = 'microLife genome'
+    mash_table$bacLIFE_name = NULL
+    colnames(mash_table)[1] = 'bacLIFE genome'
     
     mash_table <- DT::datatable(
       mash_table,
@@ -1047,9 +1047,9 @@ server <- function(input, output){
   output$mashresults <- renderUI({
     req(input$fastagenomeFile)
     tagList(
-      h3(tags$b('map2microLife results')),
+      h3(tags$b('map2bacLIFE results')),
       br(),
-      p(style="text-align: justify",'Average Nucleotide Identity (ANI) similarity of the input genome against the genomes present in this microLife dataset by Mash "https://github.com/marbl/Mash". The lowest the ANI value the more similar are two genomes.'),
+      p(style="text-align: justify",'Average Nucleotide Identity (ANI) similarity of the input genome against the genomes present in this bacLIFE dataset by Mash "https://github.com/marbl/Mash". The lowest the ANI value the more similar are two genomes.'),
       br(),
       DT::dataTableOutput("mash_table"),
       br(),
@@ -1111,7 +1111,7 @@ server <- function(input, output){
   output$tableblasthit <- renderDataTable({
     input = input_fasta2()
     blast_results = input[[1]]
-    colnames(blast_results) = c('microLife gene', 'query gene', 'Coverage (%)', 'Sequence similarity (%)', 'e-value', 'bitscore', 'microLife gene cluster')
+    colnames(blast_results) = c('bacLIFE gene', 'query gene', 'Coverage (%)', 'Sequence similarity (%)', 'e-value', 'bitscore', 'bacLIFE gene cluster')
     blast_results <- DT::datatable(
       blast_results,
       extensions = c("Buttons"),
@@ -1159,9 +1159,9 @@ server <- function(input, output){
     
     
     tagList(
-      h3(tags$b('Blast2microLife results')),
+      h3(tags$b('Blast2bacLIFE results')),
       br(),
-      p(style="text-align: justify",'Blast2microLife finds the gene cluster with the closest homology to the query gene and performs Principal Coordinate Analysis (PCoA) showing the distribution of the query sequence and its presence in the different genomes included in this dataset.'),
+      p(style="text-align: justify",'Blast2bacLIFE finds the gene cluster with the closest homology to the query gene and performs Principal Coordinate Analysis (PCoA) showing the distribution of the query sequence and its presence in the different genomes included in this dataset.'),
       br(),
       DT::dataTableOutput('tableblasthit'),
       br(),
@@ -1305,10 +1305,10 @@ server <- function(input, output){
     }else{
       namess = names_equivalence
       namess$Full_name = str_remove(namess$Full_name, '_O.fna')
-      namess$MicroLife_name = str_remove(namess$MicroLife_name, '_O.fna')
+      namess$bacLIFE_name = str_remove(namess$bacLIFE_name, '_O.fna')
       
       subnames = namess[namess$Full_name %in% bacteria,]
-      patrn = subnames$MicroLife_name[1]
+      patrn = subnames$bacLIFE_name[1]
       results$genome_position <- sapply(results$descriptions, extract_position, patrn)
       genome_position <- as.numeric(results$genome_position)
       results <- separate_rows(results, genome_position, convert = TRUE)
@@ -1614,9 +1614,9 @@ server <- function(input, output){
     bacteria = vals_antismash_bacteria()
     names = names_equivalence
     names$Full_name = str_remove( names$Full_name, '_O.fna')
-    names$Microlife_name = str_remove( names$MicroLife_name, '.fna')
+    names$bacLIFE_name = str_remove( names$bacLIFE_name, '.fna')
     names = data.table(names)
-    folder = names[names$Full_name %in% bacteria]$Microlife_name
+    folder = names[names$Full_name %in% bacteria]$bacLIFE_name
     folder_path = paste0('antismash/', folder, '/')
     addResourcePath(folder , folder_path)
     tags$iframe(seamless="seamless",
