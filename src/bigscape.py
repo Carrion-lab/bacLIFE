@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 
 """
@@ -6,11 +6,12 @@ BiG-SCAPE
 
 PI: Marnix Medema               marnix.medema@wur.nl
 
-Maintainers/developers:
-Jorge Navarro                   j.navarro@westerdijkinstitute.nl
-Satria Kautsar                  satria.kautsar@wur.nl
+Maintainers:
+Jorge Navarro                   jorge.navarromunoz@wur.nl
 
-Developer:
+Developers:
+Jorge Navarro                   jorge.navarromunoz@wur.nl
+Satria Kautsar                  sakautsar@lbl.gov
 Emmanuel (Emzo) de los Santos   E.De-Los-Santos@warwick.ac.uk
 
 
@@ -18,28 +19,17 @@ Usage:   Please see `python bigscape.py -h`
 
 Example: python bigscape.py -c 8 --pfam_dir ./ -i ./inputfiles -o ./results
 
-Status: beta
 
 Official repository:
-https://git.wageningenur.nl/medema-group/BiG-SCAPE
+https://github.com/medema-group/BiG-SCAPE
 
 
 # License: GNU Affero General Public License v3 or later
-# A copy of GNU AGPL v3 should have been included in this software package in LICENSE.txt.
+# A copy of GNU AGPL v3 should have been included in this software package in 
+# LICENSE.txt.
 """
 
-# Makes sure the script can be used with Python 2 as well as Python 3.
-from __future__ import print_function
-from __future__ import division
-
-from sys import version_info
-if version_info[0]==2:
-    range = xrange
-    import cPickle as pickle # for storing and retrieving dictionaries
-elif version_info[0]==3:
-    import pickle # for storing and retrieving dictionaries
-
-from math import exp, log
+import pickle # for storing and retrieving dictionaries
 import os
 import subprocess
 import sys
@@ -48,17 +38,17 @@ from glob import glob
 from itertools import combinations
 from itertools import product as combinations_product
 from collections import defaultdict
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool, cpu_count, get_context
 from argparse import ArgumentParser
 from difflib import SequenceMatcher
 from operator import itemgetter
 import zipfile
 
 from Bio import SeqIO
-from Bio.SeqFeature import BeforePosition, AfterPosition
-from Bio import AlignIO
-from Bio import pairwise2
-from Bio.SubsMat.MatrixInfo import pam250 as scoring_matrix
+# from Bio.SeqFeature import BeforePosition, AfterPosition
+# from Bio import AlignIO
+# from Bio import pairwise2
+# from Bio.SubsMat.MatrixInfo import pam250 as scoring_matrix
 from Bio import Phylo
 
 from functions import *
@@ -66,13 +56,14 @@ from ArrowerSVG import *
 
 import numpy as np
 from array import array
-from scipy.sparse import lil_matrix
 from scipy.optimize import linear_sum_assignment
 import json
 import shutil
 from distutils import dir_util
 from sklearn.cluster import AffinityPropagation
 import networkx as nx
+
+from bgc_data import bgc_data
 
 
 global use_relevant_mibig
@@ -81,12 +72,11 @@ global genbankDict
 global valid_classes
 
 
-def process_gbk_files(gbk, min_bgc_size, bgc_info, files_no_proteins, files_no_biosynthetic_genes):
+def process_gbk_files(gbk, bgc_fasta_folder, valid_classes, genbankDict, min_bgc_size, bgc_info, files_no_proteins, files_no_biosynthetic_genes):
     """ Given a file path to a GenBank file, reads information about the BGC"""
 
     biosynthetic_genes = set()
     product_list_per_record = []
-    fasta_data = []
     save_fasta = True
     adding_sequence = False
     contig_edge = False
@@ -407,7 +397,7 @@ def process_gbk_files(gbk, min_bgc_size, bgc_info, files_no_proteins, files_no_b
     return adding_sequence
 
 
-def get_gbk_files(inputpath, outputdir, bgc_fasta_folder, min_bgc_size, include_gbk_str, exclude_gbk_str, bgc_info):
+def get_gbk_files(inputpath, outputdir, bgc_fasta_folder, valid_classes, genbankDict, min_bgc_size, include_gbk_str, exclude_gbk_str, bgc_info):
     """Searches given directory for genbank files recursively, will assume that
     the genbank files that have the same name are the same genbank file. 
     Returns a dictionary that contains the names of the clusters found as keys
@@ -452,7 +442,7 @@ def get_gbk_files(inputpath, outputdir, bgc_fasta_folder, min_bgc_size, include_
             sys.exit("\nError: Input GenBank files should not have spaces in their path as hmmscan cannot process them properly ('too many arguments').")
         
         file_counter += 1
-        if process_gbk_files(filepath, min_bgc_size, bgc_info, files_no_proteins, files_no_biosynthetic_genes):
+        if process_gbk_files(filepath, bgc_fasta_folder, valid_classes, genbankDict, min_bgc_size, bgc_info, files_no_proteins, files_no_biosynthetic_genes):
             processed_sequences += 1
     
     if len(files_no_proteins) > 0:
@@ -503,7 +493,7 @@ def generate_network(cluster_pairs, cores):
     cluster_pairs is a list of triads (cluster1_index, cluster2_index, BGC class)
     """
     
-    pool = Pool(cores, maxtasksperchild=100)
+    pool = get_context("fork").Pool(cores, maxtasksperchild=100)
     
     #Assigns the data to the different workers and pools the results back into
     # the network_matrix variable
@@ -1050,7 +1040,6 @@ def cluster_distance_lcs(A, B, A_domlist, B_domlist, dcg_A, dcg_b, core_pos_A, c
     S_anchor = domain_difference_anchor
         
     # Cases 2 and 3 (now merged)
-    missing_aligned_domain_files = []
     for shared_domain in intersect:
         specific_domain_list_A = BGCs[A][shared_domain]
         specific_domain_list_B = BGCs[B][shared_domain]
@@ -1073,37 +1062,8 @@ def cluster_distance_lcs(A, B, A_domlist, B_domlist, dcg_A, dcg_b, core_pos_A, c
                 matches = 0
                 gaps = 0
                 
-                try:
-                    aligned_seqA = AlignedDomainSequences[sequence_tag_a]
-                    aligned_seqB = AlignedDomainSequences[sequence_tag_b]
-                    
-                except KeyError:
-                    # For some reason we don't have the multiple alignment files. 
-                    # Try manual alignment
-                    if shared_domain not in missing_aligned_domain_files and verbose:
-                        # this will print everytime an unfound <domain>.algn is not found for every
-                        # distance calculation (but at least, not for every domain pair!)
-                        print("  Warning: {}.algn not found. Trying pairwise alignment...".format(shared_domain))
-                        missing_aligned_domain_files.append(shared_domain)
-                    
-                    try:
-                        unaligned_seqA = temp_domain_fastas[sequence_tag_a]
-                        unaligned_seqB = temp_domain_fastas[sequence_tag_b]
-                    except KeyError:
-                        # parse the file for the first time and load all the sequences
-                        with open(os.path.join(domains_folder, shared_domain + ".fasta"),"r") as domain_fasta_handle:
-                            temp_domain_fastas = fasta_parser(domain_fasta_handle)
-                        
-                        unaligned_seqA = temp_domain_fastas[sequence_tag_a]
-                        unaligned_seqB = temp_domain_fastas[sequence_tag_b]
-                        
-                    # gap_open = -15
-                    # gap_extend = -6.67. These parameters were set up by Emzo
-                    alignScore = pairwise2.align.globalds(unaligned_seqA, unaligned_seqB, scoring_matrix, -15, -6.67, one_alignment_only=True)
-                    bestAlignment = alignScore[0]
-                    aligned_seqA = bestAlignment[0]
-                    aligned_seqB = bestAlignment[1]
-                    
+                aligned_seqA = AlignedDomainSequences[sequence_tag_a]
+                aligned_seqB = AlignedDomainSequences[sequence_tag_b]
                     
                 # - Calculate aligned domain sequences similarity -
                 # Sequences *should* be of the same length unless something went
@@ -1211,7 +1171,7 @@ def launch_hmmalign(cores, domain_sequence_list):
     Launches instances of hmmalign with multiprocessing.
     Note that the domains parameter contains the .fasta extension
     """
-    pool = Pool(cores, maxtasksperchild=32)
+    pool = get_context("fork").Pool(cores, maxtasksperchild=32)
     pool.map(run_hmmalign, domain_sequence_list)
     pool.close()
     pool.join()
@@ -1331,13 +1291,14 @@ def parseHmmScan(hmmscanResults, pfd_folder, pfs_folder, overlapCutoff):
             # there aren't any domains in this BGC
             # delete from all data structures
             print("  No domains where found in {}.domtable. Removing it from further analysis".format(outputbase))
-            info = genbankDict.get(outputbase)
+            if 'genbankDict' in locals():
+              info = genbankDict.get(outputbase)
+              gbk_files.remove(info[0])
+              for sample in info[1]:
+                  sampleDict[sample].remove(outputbase)
+              del genbankDict[outputbase]
             clusters.remove(outputbase)
             baseNames.remove(outputbase)
-            gbk_files.remove(info[0])
-            for sample in info[1]:
-                sampleDict[sample].remove(outputbase)
-            del genbankDict[outputbase]
             if outputbase in mibig_set:
                 mibig_set.remove(outputbase)
             
@@ -1347,7 +1308,7 @@ def parseHmmScan(hmmscanResults, pfd_folder, pfs_folder, overlapCutoff):
     return("")
 
 
-def clusterJsonBatch(bgcs, pathBase, className, matrix, pos_alignments, cutoffs=[1.0], damping=0.9, clusterClans=False, clanCutoff=(0.5,0.8), htmlFolder=None):
+def clusterJsonBatch(bgcs, pathBase, className, matrix, pos_alignments, pfd_folder, bgc_fasta_folder, cutoffs=[1.0], damping=0.9, clusterClans=False, clanCutoff=(0.5,0.8), htmlFolder=None):
     """BGC Family calling
     Uses csr sparse matrices to call Gene Cluster Families (GCFs) using Affinity
     Propagation.
@@ -1406,38 +1367,40 @@ def clusterJsonBatch(bgcs, pathBase, className, matrix, pos_alignments, cutoffs=
         # We cannot get all the info exclusively from the pfd because that only
         # contains ORFs with predicted domains (and we need to draw empty genes
         # as well)
-        for line in open(fastaFile):
-            if line[0] == ">":
-                header = line.strip()[1:].split(':')
-                orf = header[0]
-                if header[2]:
-                    orfDict[orf]["id"] = header[2]
-                elif header[4]:
-                    orfDict[orf]["id"] = header[4]
-                else:
-                    orfDict[orf]["id"] = orf
+        with open(fastaFile) as fastaFile_handle:
+            for line in fastaFile_handle:
+                if line[0] == ">":
+                    header = line.strip()[1:].split(':')
+                    orf = header[0]
+                    if header[2]:
+                        orfDict[orf]["id"] = header[2]
+                    elif header[4]:
+                        orfDict[orf]["id"] = header[4]
+                    else:
+                        orfDict[orf]["id"] = orf
+                        
+                    ## broken gene goes into cluster, need this so js doesn't throw an error
+                    if int(header[6]) <= 1:
+                        orfDict[orf]["start"] = 1
+                    else:
+                        orfDict[orf]["start"] = int(header[6])
+                        
+                    orfDict[orf]["end"] = int(header[7])
                     
-                ## broken gene goes into cluster, need this so js doesn't throw an error
-                if int(header[6]) <= 1:
-                    orfDict[orf]["start"] = 1
-                else:
-                    orfDict[orf]["start"] = int(header[6])
-                    
-                orfDict[orf]["end"] = int(header[7])
-                
-                if header[-1] == '+':
-                    orfDict[orf]["strand"] = 1
-                else:
-                    orfDict[orf]["strand"] = -1
-                    
-                orfDict[orf]["domains"] = []
+                    if header[-1] == '+':
+                        orfDict[orf]["strand"] = 1
+                    else:
+                        orfDict[orf]["strand"] = -1
+                        
+                    orfDict[orf]["domains"] = []
     
         ## now read pfd file to add the domains to each of the orfs
-        for line in open(pfdFile):
-            entry = line.split('\t')
-            orf = entry[-1].strip().split(':')[0]
-            pfamID = entry[5].split('.')[0]
-            orfDict[orf]["domains"].append({'code': pfamID, 'start': int(entry[3]), 'end': int(entry[4]), 'bitscore': float(entry[1])})
+        with open(pfdFile) as pfdFile_handle:
+            for line in pfdFile_handle:
+                entry = line.split('\t')
+                orf = entry[-1].strip().split(':')[0]
+                pfamID = entry[5].split('.')[0]
+                orfDict[orf]["domains"].append({'code': pfamID, 'start': int(entry[3]), 'end': int(entry[4]), 'bitscore': float(entry[1])})
         # order of ORFs is important here because I use it to get a translation
         # between the "list of ORFs with domains" to "list of all ORFs" later on
         bgcJsonDict[bgcName]['orfs'] = sorted(orfDict.values(), key=itemgetter("start"))
@@ -1815,7 +1778,7 @@ def clusterJsonBatch(bgcs, pathBase, className, matrix, pos_alignments, cutoffs=
                         domainGenes2allGenes[bgc][has_domains] = orf
                         has_domains += 1
                         
-            assert (len(members) > 0), "Error: bs_families[{}] have no members, something went wrong?".format(fam_idx)
+            assert len(members) > 0, f"Error: bs_families[{family}] have no members, something went wrong?"
             
             ref_genes_ = set()
             aln = []
@@ -2082,57 +2045,42 @@ def CMD_parser():
                         sequences. Use if alignments have been generated in a \
                         previous run.")
     
-    parser.add_argument("--mibig", dest="mibig14", default=False, action="store_true",
-                        help="Use included BGCs from then MIBiG database. Only \
-                        relevant (i.e. those with distance < max(cutoffs) against\
-                        the input set) will be used. Currently uses version 1.4 \
-                        of MIBiG. See https://mibig.secondarymetabolites.org/")
+    parser.add_argument("--mibig", dest="mibig31", default=False, 
+                        action="store_true", help="Include MIBiG 3.1 BGCs as \
+                        reference (https://mibig.secondarymetabolites.org/). \
+                        These BGCs will only be kept if they are connected to \
+                        a region in the input set (distance < max(cutoffs)).")
+    
+    parser.add_argument("--mibig21", dest="mibig21", default=False, action="store_true",
+                        help="Include BGCs from version 2.1 of MIBiG")
+
+    parser.add_argument("--mibig14", dest="mibig14", default=False, action="store_true",
+                        help="Include BGCs from version 1.4 of MIBiG")
     
     parser.add_argument("--mibig13", dest="mibig13", default=False, action="store_true",
-                        help="Include BGCs from the previous version of MIBiG (1.3)")
+                        help="Include BGCs from version 1.3 of MIBiG")
     
     parser.add_argument("--query_bgc", help="Instead of making an all-VS-all \
                         comparison of all the input BGCs, choose one BGC to \
                         compare with the rest of the set (one-VS-all). The \
                         query BGC does not have to be within inputdir")
     
-    parser.add_argument("--domain_whitelist", help="Only analyze BGCs that \
+    parser.add_argument("--domain_includelist", help="Only analyze BGCs that \
                         include domains with the pfam accessions found in the \
-                        domain_whitelist.txt file", default=False,
+                        domain_includelist.txt file", default=False,
                         action="store_true")
 
-    parser.add_argument("--version", action="version", version="%(prog)s 1.0.1 (2020-01-27)")
+    parser.add_argument("--version", action="version", version="%(prog)s 1.1.5 \
+        (2022-11-14)")
 
     return parser.parse_args()
 
 
-if __name__=="__main__":
-    options = CMD_parser()
-    
-    class bgc_data:
-        def __init__(self, accession_id, description, product, records, max_width, bgc_size, organism, taxonomy, biosynthetic_genes, contig_edge):
-            # These two properties come from the genbank file:
-            self.accession_id = accession_id
-            self.description = description
-            # AntiSMASH predicted class of compound:
-            self.product = product
-            # number of records in the genbank file (think of multi-locus BGCs):
-            self.records = records
-            # length of largest record (it will be used for ArrowerSVG):
-            self.max_width = int(max_width)
-            # length of the entire bgc (can include several records/subclusters)
-            self.bgc_size = bgc_size
-            # organism
-            self.organism = organism
-            # taxonomy as a string (of comma-separated values)
-            self.taxonomy = taxonomy
-            # Internal set of tags corresponding to genes that AntiSMASH marked 
-            # as "Kind: Biosynthetic". It is formed as
-            # clusterName + "_ORF" + cds_number + ":gid:" + gene_id + ":pid:" + protein_id + ":loc:" + gene_start + ":" + gene_end + ":strand:" + {+,-}
-            self.biosynthetic_genes = biosynthetic_genes
-            # AntiSMASH 4+ marks BGCs that sit on the edge of a contig
-            self.contig_edge = contig_edge
 
+
+
+def main():
+    options = CMD_parser()
     
     if options.outputdir == "":
         print("please provide a name for an output folder using parameter -o or --outputdir")
@@ -2154,7 +2102,7 @@ if __name__=="__main__":
     global verbose
     global BGCs
     
-    # contains the type of the final product of the BGC (as predicted by AntiSMASH), 
+    # contains the type of the final product of the BGC (as predicted by antiSMASH), 
     # as well as the definition line from the BGC file. Used in the final network files.
     global output_folder
 
@@ -2226,9 +2174,16 @@ if __name__=="__main__":
             
     verbose = options.verbose
     
-    if options.mibig14 and options.mibig13:
+    selected_mibig = 0
+    if options.mibig31: selected_mibig += 1
+    if options.mibig21: selected_mibig += 1
+    if options.mibig14: selected_mibig += 1
+    if options.mibig13: selected_mibig += 1
+    if selected_mibig > 1:
         sys.exit("Error: choose only one MIBiG version")
-    use_relevant_mibig = options.mibig13 or options.mibig14
+    use_relevant_mibig = False
+    if selected_mibig == 1:
+        use_relevant_mibig = True
     
     run_mode_string = ""
     networks_folder_all = "networks_all"
@@ -2247,8 +2202,7 @@ if __name__=="__main__":
     time1 = time.time()
 
     start_time = time.localtime()
-   # run_name = "{}{}".format(time.strftime("%Y-%m-%d_%H-%M-%S", start_time), run_mode_string)
-    run_name = "hybrids_glocal"
+    run_name = "{}{}".format(time.strftime("%Y-%m-%d_%H-%M-%S", start_time), run_mode_string)
     if options.label:
         run_name = run_name + "_" + options.label
     run_data["start_time"] = time.strftime("%d/%m/%Y %H:%M:%S", start_time)
@@ -2259,22 +2213,22 @@ if __name__=="__main__":
     global gbk_files, sampleDict, clusters, baseNames
     
     
-    # Get domain_whitelist
-    has_whitelist = False
-    if options.domain_whitelist:
+    # Get domain_includelist
+    has_includelist = False
+    if options.domain_includelist:
         bigscape_path = os.path.dirname(os.path.realpath(__file__))
-        if os.path.isfile(os.path.join(bigscape_path,"domain_whitelist.txt")):
-            domain_whitelist = set()
-            for line in open(os.path.join(bigscape_path,"domain_whitelist.txt"), "r"):
+        if os.path.isfile(os.path.join(bigscape_path,"domain_includelist.txt")):
+            domain_includelist = set()
+            for line in open(os.path.join(bigscape_path,"domain_includelist.txt"), "r"):
                 if line[0] == "#":
                     continue
-                domain_whitelist.add(line.split("\t")[0].strip())
-            if len(domain_whitelist) == 0:
-                print("Warning: --domain_whitelist used, but no domains found in the file")
+                domain_includelist.add(line.split("\t")[0].strip())
+            if len(domain_includelist) == 0:
+                print("Warning: --domain_includelist used, but no domains found in the file")
             else:
-                has_whitelist = True
+                has_includelist = True
         else:
-            sys.exit("Error: domain_whitelist.txt file not found")
+            sys.exit("Error: domain_includelist.txt file not found")
     
     
     ### Step 1: Get all the input files. Write extract sequence and write fasta if necessary
@@ -2283,7 +2237,8 @@ if __name__=="__main__":
     create_directory(output_folder, "Output", False)
 
     # logs
-    log_folder = os.path.join(output_folder, "logs")
+    global log_folder
+    log_folder= os.path.join(output_folder, "logs")
     create_directory(log_folder, "Logs", False)
     write_parameters(log_folder, sys.argv)
 
@@ -2331,7 +2286,9 @@ if __name__=="__main__":
 
 
     # genbankDict: {cluster_name:[genbank_path_to_1st_instance,[sample_1,sample_2,...]]}
+    global bgc_info
     bgc_info = {} # Stores, per BGC: predicted type, gbk Description, number of records, width of longest record, GenBank's accession, Biosynthetic Genes' ids
+    global genbankDict  ## add this line
     genbankDict = {}
     
     # Exclude single string
@@ -2350,12 +2307,17 @@ if __name__=="__main__":
     # Read included MIBiG
     # Change this for every officially curated MIBiG bundle
     # (file, final folder, number of bgcs)
+    global mibig_set
     mibig_set = set()
     if use_relevant_mibig:
-        if options.mibig13:
-            mibig_zipfile_numbgcs = ("MIBiG_1.3_final.zip", "MIBiG_1.3_final", 1393)
-        else:
+        if options.mibig31:
+            mibig_zipfile_numbgcs = ("MIBiG_3.1_final.zip", "MIBiG_3.1_final", 2502)
+        elif options.mibig21:
+            mibig_zipfile_numbgcs = ("MIBiG_2.1_final.zip", "MIBiG_2.1_final", 1923)
+        elif options.mibig14:
             mibig_zipfile_numbgcs = ("MIBiG_1.4_final.zip", "MIBiG_1.4_final", 1808)
+        else:
+            mibig_zipfile_numbgcs = ("MIBiG_1.3_final.zip", "MIBiG_1.3_final", 1393)
         
         print("\n Trying to read bundled MIBiG BGCs as reference")
         mibig_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),"Annotated_MIBiG_reference")
@@ -2382,7 +2344,7 @@ if __name__=="__main__":
             sys.exit("Did not find the correct number of MIBiG BGCs ({}). Please clean the 'Annotated MIBiG reference' folder from any .gbk files first".format(mibig_zipfile_numbgcs[2]))
         
         print("\nImporting MIBiG files")
-        get_gbk_files(bgcs_path, output_folder, bgc_fasta_folder, int(options.min_bgc_size),
+        get_gbk_files(bgcs_path, output_folder, bgc_fasta_folder, valid_classes, genbankDict, int(options.min_bgc_size),
                       ['*'], exclude_gbk_str, bgc_info)
         
         for i in genbankDict.keys():
@@ -2390,7 +2352,7 @@ if __name__=="__main__":
             
     
     print("\nImporting GenBank files")
-    get_gbk_files(options.inputdir, output_folder, bgc_fasta_folder, int(options.min_bgc_size),
+    get_gbk_files(options.inputdir, output_folder, bgc_fasta_folder, valid_classes, genbankDict, int(options.min_bgc_size),
                   include_gbk_str, exclude_gbk_str, bgc_info)
     
     if has_query_bgc:
@@ -2400,7 +2362,7 @@ if __name__=="__main__":
             pass
         else:
             print("\nImporting query BGC file")
-            get_gbk_files(options.query_bgc, output_folder, bgc_fasta_folder, 
+            get_gbk_files(options.query_bgc, output_folder, bgc_fasta_folder, valid_classes, genbankDict,
                           int(options.min_bgc_size), ['*'], exclude_gbk_str, bgc_info)
             
         if query_bgc not in genbankDict:
@@ -2448,6 +2410,7 @@ if __name__=="__main__":
     # list of gene-numbers that have a hit in the anchor domain list. Zero based
     corebiosynthetic_position = {}
     # list of +/- orientation 
+    global BGCGeneOrientation
     BGCGeneOrientation = {}
     
     # to avoid multiple alignment if there's only 1 seq. representing a particular domain
@@ -2508,7 +2471,7 @@ if __name__=="__main__":
         else:
             print(" Predicting domains for {} fasta files".format(str(len(fastaFiles))))
         
-    pool = Pool(cores,maxtasksperchild=1)
+    pool = get_context("fork").Pool(cores,maxtasksperchild=1)
     for fastaFile in task_set:
         pool.apply_async(runHmmScan,args=(fastaFile, pfam_dir, domtable_folder, verbose))
     pool.close()
@@ -2618,7 +2581,9 @@ if __name__=="__main__":
                 print("   Processing: " + outputbase)
 
             pfdFile = os.path.join(pfd_folder, outputbase + ".pfd")
-            filtered_matrix = [[part.strip() for part in line.split('\t')] for line in open(pfdFile)]
+            with open(pfdFile) as pfd_handle:
+                filtered_matrix = [[part.strip() for part in line.split('\t')] 
+                    for line in pfd_handle]
 
             # save each domain sequence from a single BGC in its corresponding file
             fasta_file = os.path.join(bgc_fasta_folder, outputbase + ".fasta")
@@ -2704,21 +2669,27 @@ if __name__=="__main__":
     # read hmm file. We'll need that info anyway for final visualization
     print("  Parsing hmm file for domain information")
     pfam_info = {}
+    name = ""
+    acc = "" # compulsory line
+    desc = ""
     with open(os.path.join(pfam_dir, "Pfam-A.hmm"), "r") as pfam:
-        putindict = False
-        # assuming that the order of the information never changes
         for line in pfam:
-            if line[:4] == "NAME":
-                name = line.strip()[6:]
-            if line[:3] == "ACC":
-                acc = line.strip()[6:].split(".")[0]
-            if line[:4] == "DESC":
-                desc = line.strip()[6:]
-                putindict = True
-                
-            if putindict:
-                putindict = False
-                pfam_info[acc] = (name, desc)
+            if line.strip() == "//":
+                # found new record
+                if acc: pfam_info[acc] = (name, desc)
+
+                # clear data in any case
+                name = ""
+                acc = "" # compulsory line
+                desc = ""
+
+                continue
+
+            if line[:4] not in {"NAME", "ACC ", "DESC"}: continue
+
+            if line[:4] == "NAME": name = line.strip()[6:]
+            elif line[:3] == "ACC": acc = line.strip()[6:].split(".")[0]
+            elif line[:4] == "DESC": desc = line.strip()[6:]
     print("    Done")
     
     # verify if there are figures already generated
@@ -2734,7 +2705,7 @@ if __name__=="__main__":
     
     if len(working_set) > 0:
         color_genes = {}
-        color_domains = read_color_domains_file()
+        color_domains = read_color_domains_file(output_folder)
         pfam_domain_categories = {}
         
         #This must be done serially, because if a color for a gene/domain
@@ -2742,7 +2713,7 @@ if __name__=="__main__":
         print("  Reading BGC information and writing SVG")
         for bgc in working_set:
             with open(genbankDict[bgc][0],"r") as handle:
-                SVG(False, os.path.join(svg_folder,bgc+".svg"), handle, bgc, os.path.join(pfd_folder,bgc+".pfd"), True, color_genes, color_domains, pfam_domain_categories, pfam_info, bgc_info[bgc].records, bgc_info[bgc].max_width)
+                SVG(output_folder, False, os.path.join(svg_folder,bgc+".svg"), handle, bgc, os.path.join(pfd_folder,bgc+".pfd"), True, color_genes, color_domains, pfam_domain_categories, pfam_info, bgc_info[bgc].records, bgc_info[bgc].max_width)
         
         color_genes.clear()
         color_domains.clear()
@@ -2908,11 +2879,11 @@ if __name__=="__main__":
         
         # create working set with indices of valid clusters
         for clusterIdx,clusterName in enumerate(clusterNames):
-            if has_whitelist:
+            if has_includelist:
                 # extra processing because pfs info includes model version
                 bgc_domain_set = set({x.split(".")[0] for x in DomainList[clusterName]})
                     
-                if len(domain_whitelist & bgc_domain_set) == 0:
+                if len(domain_includelist & bgc_domain_set) == 0:
                     continue
             
             product = bgc_info[clusterName].product
@@ -3052,7 +3023,7 @@ if __name__=="__main__":
             # lcsStartA, lcsStartB, seedLength, reverse={True,False}
             pa[int(row[1])] = (int(row[-4]), int(row[-3]), int(row[-2]), reverse)
         del network_matrix_mix[:]
-        family_data = clusterJsonBatch(mix_set, pathBase, "mix", reduced_network, pos_alignments,
+        family_data = clusterJsonBatch(mix_set, pathBase, "mix", reduced_network, pos_alignments, pfd_folder, bgc_fasta_folder,
                             cutoffs=cutoff_list, clusterClans=options.clans,
                             clanCutoff=options.clan_cutoff, htmlFolder=network_html_folder)
         for network_html_folder_cutoff in family_data:
@@ -3074,11 +3045,11 @@ if __name__=="__main__":
         
         # create and sort working set for each class
         for clusterIdx,clusterName in enumerate(clusterNames):
-            if has_whitelist:
+            if has_includelist:
                 # extra processing because pfs info includes model version
                 bgc_domain_set = set({x.split(".")[0] for x in DomainList[clusterName]})
                     
-                if len(domain_whitelist & bgc_domain_set) == 0:
+                if len(domain_includelist & bgc_domain_set) == 0:
                     continue
             
             product = bgc_info[clusterName].product
@@ -3271,7 +3242,7 @@ if __name__=="__main__":
             del network_matrix[:]
 
             family_data = clusterJsonBatch(BGC_classes[bgc_class], pathBase, bgc_class,
-                                reduced_network, pos_alignments, cutoffs=cutoff_list, 
+                                reduced_network, pos_alignments, pfd_folder, bgc_fasta_folder, cutoffs=cutoff_list, 
                                 clusterClans=options.clans, clanCutoff=options.clan_cutoff, 
                                 htmlFolder=network_html_folder)
             for network_html_folder_cutoff in family_data:
@@ -3359,4 +3330,6 @@ if __name__=="__main__":
     with open(os.path.join(log_folder, "runtimes.txt"), 'a') as timings_file:
         timings_file.write(runtime_string + "\n")
     print(runtime_string)
-    
+
+if __name__=="__main__":
+    main()
