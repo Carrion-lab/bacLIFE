@@ -1,4 +1,4 @@
-name: bigscape_microlife
+name: bigscape_bacLIFE
 channels:
   - conda-forge
   - bioconda
