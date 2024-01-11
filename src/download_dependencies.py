@@ -34,6 +34,8 @@ os.system('wget -P ./intermediate_files/DBCAN/ http://bcb.unl.edu/dbCAN2/downloa
 
 os.system('git clone https://github.com/medema-group/BiG-SCAPE.git')
 os.system('mv BiG-SCAPE intermediate_files/')
+os.system('rm intermediate_files/BiG-SCAPE/bigscape.py')
+os.system('mv src/bigscape.py intermediate_files/BiG-SCAPE/')
 
 
 
