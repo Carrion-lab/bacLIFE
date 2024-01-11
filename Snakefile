@@ -281,7 +281,7 @@ rule antismash:
             out_dir = 'intermediate_files/antismash/{genus}_{species}_{str}_{replicon}/',
             threads = THREADS
         shell:
-            'set +u; source /opt/miniconda3/etc/profile.d/conda.sh; conda activate antismash_microlife; set -u; antismash --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} -c {params.threads} --asf --pfam2go --genefinding-tool prodigal --smcog-trees {input}'
+            'set +u; source /opt/miniconda3/etc/profile.d/conda.sh; conda activate antismash_bacLIFE; set -u; antismash --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} -c {params.threads} --asf --pfam2go --genefinding-tool prodigal --smcog-trees {input}'
 
 
 
@@ -300,7 +300,7 @@ rule bigscape_exe:
             threads = THREADS,
             indir = rules.directories.params.antismash
         run:
-            shell("set +u; source /opt/miniconda3/etc/profile.d/conda.sh; conda activate bigscape_microlife; set -u; python ./intermediate_files/BiG-SCAPE/bigscape.py -i {params.indir} -o {params.outdir} --pfam_dir intermediate_files/PFAM/ --mode glocal --mibig --cutoffs 0.3 0.7 --include_singletons --cores {params.threads} --mix")
+            shell("set +u; source /opt/miniconda3/etc/profile.d/conda.sh; conda activate bigscape_bacLIFE; set -u; python ./intermediate_files/BiG-SCAPE/bigscape.py -i {params.indir} -o {params.outdir} --pfam_dir intermediate_files/PFAM/ --mode glocal --mibig --cutoffs 0.3 0.7 --include_singletons --cores {params.threads} --mix")
             shell("rm -r intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal")
             shell("mv intermediate_files/BiG-SCAPE/bigscape_output/network_files/*hybrids_glocal intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal")
 
