@@ -77,10 +77,10 @@ M$Taxonomy = NULL
 colnames(M)[1] = 'GCF'
 
 names_equivalence =  read.table(args[7], header = T)
-names_equivalence$MicroLife_name = sapply(strsplit(names_equivalence$MicroLife_name,"_"), `[`, 3)
+names_equivalence$bacLIFE_name = sapply(strsplit(names_equivalence$bacLIFE_name,"_"), `[`, 3)
 
 M$bacteriaid  = sapply(strsplit(M$Accession.ID,"_"), `[`, 1)
-MM = merge(M, names_equivalence, by.x = 'bacteriaid', by.y = 'MicroLife_name', all.x = T)
+MM = merge(M, names_equivalence, by.x = 'bacteriaid', by.y = 'bacLIFE_name', all.x = T)
 MM = data.table(MM)
 MM[!is.na(MM$Full_name)]$Organism = MM[!is.na(MM$Full_name)]$Full_name
 MM$Full_name =NULL
