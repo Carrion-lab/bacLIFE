@@ -186,7 +186,7 @@ clean_matrix <- remove_genes_with_0s(no_singletons)
 #write.table(clean_matrix,'corepan_analysis/clean_matrix.txt', row.names = F)
 
 ##Extract singletons for each sample(output automatic in directory singletons_per_sample/ )
-singletons_table <- singleton_per_sample(singletons)
+#singletons_table <- singleton_per_sample(singletons)
 
 
 ###Exploratory ANALYSIS###
