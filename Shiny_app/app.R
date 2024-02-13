@@ -39,7 +39,7 @@ source('data_app.R')
 ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                  tabPanel('INTRODUCTION',
                           sidebarLayout(position = 'left',
-                                        sidebarPanel(width = 3,p('Authors: Guillermo Guerrero; Adrian Pintado & Victor Carrion'),
+                                        sidebarPanel(width = 3,p('Authors: Guillermo Guerrero & Victor Carrion'),
                                                      p('Instituto de Hortofruticultura Subtropical y Mediterránea (IHSM)'),
                                                      p('Universidad de Malaga (UMA)'),
                                                      p('Institute of Biology Leiden (IBL)'),
