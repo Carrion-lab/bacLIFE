@@ -7,7 +7,7 @@ bacLIFE is a streamlined computational workflow that annotates bacterial genomes
 - **Lifestyle prediction**
 	Employs a machine learning model to forecast bacterial lifestyle or other specified metadata
 - **Analitical module (Shiny app)**
-	Results from the previous modules are embedded in a user-friendly interface for comprehensive and interactive comparative genomics. An example of the app with a demo dataset (genomes present in `data`) is available at http://178.128.251.24:3838/bacLIFE_linux
+	Results from the previous modules are embedded in a user-friendly interface for comprehensive and interactive comparative genomics.
 
 
 ![workflow](https://user-images.githubusercontent.com/69348873/231155358-7fbebb3c-f6f6-406a-989b-9d273b83aa1e.png)
