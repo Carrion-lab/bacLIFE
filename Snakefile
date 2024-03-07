@@ -87,7 +87,7 @@ rule Prokka_annotation:
         threads: THREADS
         priority: 100
         run:
-                shell('prokka --force --outdir {params.outdir} --prefix {params.prefix} --locustag {params.str} --addgenes --increment 5 --centre NIOO-KNAW --genus {params.genus} --species {params.species} --str {params.str} --gcode 11 --cpus {THREADS} --evalue 1e-03 --rfam {input.file}')
+                shell('prokka --force --outdir {params.outdir} --prefix {params.prefix} --locustag {params.str} --addgenes --increment 5 --centre NIOO-KNAW --genus {params.genus} --species {params.species} --str {params.str} --gcode 11 --cpus 5 --evalue 1e-03 --rfam {input.file}')
 
 rule extract_proteins:
     input: rules.Prokka_annotation.output.prokka
@@ -281,7 +281,7 @@ rule antismash:
             out_dir = 'intermediate_files/antismash/{genus}_{species}_{str}_{replicon}/',
             threads = THREADS
         shell:
-            'set +u; source /opt/miniconda3/etc/profile.d/conda.sh; conda activate antismash_bacLIFE; set -u; antismash --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} -c {params.threads} --asf --pfam2go --genefinding-tool prodigal --smcog-trees {input}'
+            'set +u; source /opt/miniconda3/etc/profile.d/conda.sh; conda activate antismash_bacLIFE; set -u; antismash --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} -c 5 --asf --pfam2go --genefinding-tool prodigal --smcog-trees {input}'
 
 
 
