@@ -9,6 +9,7 @@ bacLIFE is a streamlined computational workflow that annotates bacterial genomes
 - **Analitical module (Shiny app)**
 	Results from the previous modules are embedded in a user-friendly interface for comprehensive and interactive comparative genomics.
 
+You can find the complete wiki here [https://github.com/Carrion-lab/bacLIFE/wiki/bacLIFE-wiki] 
 
 ![workflow](https://user-images.githubusercontent.com/69348873/231155358-7fbebb3c-f6f6-406a-989b-9d273b83aa1e.png)
 
