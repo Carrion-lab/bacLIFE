@@ -1,4 +1,4 @@
-name:bacLIFE_download
+name: bacLIFE_download
 channels:
     - conda-forge
     - bioconda
