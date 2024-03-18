@@ -78,7 +78,7 @@ args = commandArgs(trailingOnly=TRUE)
 ###Load metadata
 mapping_file <- read.table(args[1], header = T)
 column2use <- args[3]
-mapping_file <- mapping_file[,c('Sample', columns2use)]
+mapping_file <- mapping_file[,c('Sample', column2use)]
 colnames(mapping_file)[2] <- 'Lifestyle'
 ###load and filter matrix
 matrix <- read_delim(args[2], col_names = T, quote = "\"")
