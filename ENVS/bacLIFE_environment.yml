@@ -35,4 +35,5 @@ dependencies:
     - r-randomforest
     - phylophlan
     - eggnog-mapper
+    - scikit-learn
 
