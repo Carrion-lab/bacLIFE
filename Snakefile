@@ -281,7 +281,7 @@ rule antismash:
             out_dir = 'intermediate_files/antismash/{genus}_{species}_{str}_{replicon}/',
             threads = THREADS
         shell:
-            'source activate antismash_bacLIFE; antismash --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} -c 5 --asf --pfam2go --genefinding-tool prodigal --smcog-trees {input}'
+            'source activate antismash_bacLIFE; antismash --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --genefinding-tool prodigal --smcog-trees {input}'
 
 
 
