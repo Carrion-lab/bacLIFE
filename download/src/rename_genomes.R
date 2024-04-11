@@ -16,9 +16,9 @@ df <- data.frame(NCBIid =  new_names$V1 ,Full_name = new_names$V2, Genus = sappl
 
 df$Strain <- paste0( 'X',sprintf('%0.5d', 1:nrow(df)))
 
-df$MicroLife_name <- paste0(df$Genus, '_', df$Species, '_', df$Strain, '_O.fna')
+df$bacLIFE_name <- paste0(df$Genus, '_', df$Species, '_', df$Strain, '_O.fna')
 
 file.rename(paste0('genomes_renamed/',df$NCBIid),paste0( 'genomes_renamed/', df$MicroLife_name))
 
 
-write.table(df[,c('Full_name', 'MicroLife_name')], 'names_equivalence.txt', row.names = F)
+write.table(df[,c('Full_name', 'bacLIFE_name')], 'names_equivalence.txt', row.names = F)
