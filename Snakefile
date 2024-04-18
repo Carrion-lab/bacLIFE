@@ -87,7 +87,7 @@ rule Prokka_annotation:
         threads: THREADS
         priority: 100
         run:
-                shell('prokka --force --outdir {params.outdir} --prefix {params.prefix} --locustag {params.str} --addgenes --increment 5 --centre NIOO-KNAW --genus {params.genus} --species {params.species} --str {params.str} --gcode 11 --cpus 5 --evalue 1e-03 --rfam {input.file}')
+                shell('prokka --force --outdir {params.outdir} --prefix {params.prefix} --locustag {params.str} --addgenes --increment 5 --centre NIOO-KNAW --genus {params.genus} --species {params.species} --str {params.str} --gcode 11 --cpus 1 --evalue 1e-03 --rfam {input.file}')
 
 rule extract_proteins:
     input: rules.Prokka_annotation.output.prokka
@@ -280,8 +280,10 @@ rule antismash:
         params:
             out_dir = 'intermediate_files/antismash/{genus}_{species}_{str}_{replicon}/',
             threads = THREADS
+        conda:
+            "antismash_bacLIFE"
         shell:
-            'source activate antismash_bacLIFE; antismash --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --genefinding-tool prodigal --smcog-trees {input}'
+            'antismash --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --genefinding-tool prodigal --smcog-trees {input}'
 
 
 
@@ -299,10 +301,10 @@ rule bigscape_exe:
             outdir = 'intermediate_files/BiG-SCAPE/bigscape_output/',
             threads = THREADS,
             indir = rules.directories.params.antismash
-        run:
-            shell("source activate bigscape_bacLIFE; python ./intermediate_files/BiG-SCAPE/bigscape.py -i {params.indir} -o {params.outdir} --pfam_dir intermediate_files/PFAM/ --mode glocal --mibig --cutoffs 0.3 0.7 --include_singletons --cores {params.threads} --mix")
-            shell("rm -r intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal")
-            shell("mv intermediate_files/BiG-SCAPE/bigscape_output/network_files/*hybrids_glocal intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal")
+        conda:
+            "bigscape_bacLIFE"
+        shell:
+            "python ./intermediate_files/BiG-SCAPE/bigscape.py -i {params.indir} -o {params.outdir} --pfam_dir intermediate_files/PFAM/ --mode glocal --mibig --cutoffs 0.3 0.7 --include_singletons --cores {params.threads} --mix; rm -r intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal; mv intermediate_files/BiG-SCAPE/bigscape_output/network_files/*hybrids_glocal intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal"
 
 rule extract_binary_table_GCF:
     input:
@@ -362,6 +364,11 @@ rule phylophlan:
         shell("mv intermediate_files/phylophlan/output_phylophlan/input_{params.database}/* intermediate_files/phylophlan/output_phylophlan/")
         shell("rm -r intermediate_files/phylophlan/output_phylophlan/input_{params.database}")
        
+
+
+        
+        
+
 
 
         
