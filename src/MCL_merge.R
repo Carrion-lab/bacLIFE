@@ -7,7 +7,7 @@ library(Biostrings)
 library(data.table)
 library(parallel)
 
-cl <- makeCluster(30)
+cl <- makeCluster(10)
 args = commandArgs(trailingOnly=TRUE)
 
 tsv = data.table(read_table(args[1], col_names = F))
