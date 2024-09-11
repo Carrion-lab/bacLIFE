@@ -84,7 +84,6 @@ rule Prokka_annotation:
             str = "{str}",
             outdir = "intermediate_files/annot/{species}_{str}_{replicon}",
             prefix = "{genus}_{species}_{str}_{replicon}"
-        threads: THREADS
         priority: 100
         run:
                 shell('prokka --force --outdir {params.outdir} --prefix {params.prefix} --locustag {params.str} --addgenes --increment 5 --centre NIOO-KNAW --genus {params.genus} --species {params.species} --str {params.str} --gcode 11 --cpus 1 --evalue 1e-03 --rfam {input.file}')
