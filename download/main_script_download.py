@@ -23,7 +23,6 @@ def rename_genomes2():
 
 def join_metadata():
   os.system('Rscript src/join_metadata.R')
-  os.system('cp names_equivalence.txt ../names_equivalence.txt')
 
 if __name__=='__main__':
     download_genome_metadata()
