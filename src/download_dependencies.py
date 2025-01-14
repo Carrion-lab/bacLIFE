@@ -32,7 +32,7 @@ os.system('wget -P ./intermediate_files/DBCAN/ http://bcb.unl.edu/dbCAN2/downloa
 
 #BiG-SCAPE
 
-os.system('git clone https://github.com/medema-group/BiG-SCAPE.git')
+os.system('git clone https://github.com/medema-group/BiG-SCAPE.git --branch bigscape-v1 --single-branch')
 os.system('mv BiG-SCAPE intermediate_files/')
 os.system('rm intermediate_files/BiG-SCAPE/bigscape.py')
 os.system('cp src/bigscape.py intermediate_files/BiG-SCAPE/bigscape.py')
