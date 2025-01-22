@@ -26,6 +26,8 @@ if [ "$1" == "download" ]; then
 
     echo "Downloading AntiSMASH databases..."
     download-antismash-databases
+    
+    tail -f /dev/null
 
 elif [ "$1" == "run-snakemake" ]; then
     # Step 2: Run Snakemake only
