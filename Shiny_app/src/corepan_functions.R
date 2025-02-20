@@ -51,7 +51,7 @@ extract_sequences_fasta <- function(matrix, all_proteins, db, bacteria, id, name
     to_extract = all_proteins[gene_list_one_bacteria]
   }
   
-  dir.create('fasta_sequences')
+  dir.create('fasta_sequences', showWarnings = FALSE)
   to_extract = to_extract[names(to_extract) %in% NA == FALSE]
   filename = paste0('fasta_sequences/fasta_extract_', id, '_', bacteria, '.fasta')
   ape::write.FASTA(to_extract, filename)
@@ -398,7 +398,7 @@ singleton_per_sample <- function(matrix){
   n_samples <- grep("completeness", colnames(matrix)) - 1
   samples <- colnames(matrix[2:n_samples])
   
-  dir.create('corepan_analysis/singletons_per_sample')
+  dir.create('corepan_analysis/singletons_per_sample', showWarnings = FALSE)
   names_list<- c()
   n_singletons_list <- c()
   for (i in 1:length(samples)){
@@ -511,7 +511,7 @@ extract_sequences <- function(matrix, all_proteins, db, id){
   genes_id <- separate_rows(genes_id, gene, sep = ';')
   
   seqs <- all_proteins[genes_id$gene]
-  dir.create('MSA')
+  dir.create('MSA', showWarnings = FALSE)
   write.FASTA(seqs, 'MSA/selected_sequences.fasta')
   
   
