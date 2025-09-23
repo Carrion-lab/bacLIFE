@@ -3,6 +3,6 @@ channels:
   - bioconda
   - conda-forge
 dependencies:
-  - antismash=7.1.0-0
+  - antismash=8.0.4
   - biopython
   - numpy
