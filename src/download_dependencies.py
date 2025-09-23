@@ -5,30 +5,32 @@ import os
 #Create folders
 if not os.path.exists('intermediate_files'):
    os.makedirs('intermediate_files')
-if not os.path.exists('intermediate_files/mapper_data'):
-   os.makedirs('intermediate_files/mapper_data')
-if not os.path.exists('intermediate_files/PFAM'):
-   os.makedirs('intermediate_files/PFAM')
-if not os.path.exists('intermediate_files/DBCAN'):
-   os.makedirs('intermediate_files/DBCAN')   
+if not os.path.exists('databases'):
+   os.makedirs('databases')
+if not os.path.exists('databases/mapper_data'):
+   os.makedirs('databases/mapper_data')
+if not os.path.exists('databases/PFAM'):
+   os.makedirs('databases/PFAM')
+if not os.path.exists('databases/DBCAN'):
+   os.makedirs('databases/DBCAN')   
 if not os.path.exists('intermediate_files/BiG-SCAPE'):
    os.makedirs('intermediate_files/BiG-SCAPE')     
 
 
 #Download PFAM
 
-os.system('wget -P ./intermediate_files/PFAM/ ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam33.1/Pfam-A.hmm.gz')
-os.system('gunzip intermediate_files/PFAM/Pfam-A.hmm.gz' )
-os.system('hmmpress intermediate_files/PFAM/Pfam-A.hmm')
+os.system('wget -P ./databases/PFAM/ ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam33.1/Pfam-A.hmm.gz')
+os.system('gunzip databases/PFAM/Pfam-A.hmm.gz' )
+os.system('hmmpress databases/PFAM/Pfam-A.hmm')
 
 #Download EGGNOG
 
-os.system('download_eggnog_data.py -y --data_dir intermediate_files/mapper_data')
+os.system('download_eggnog_data.py -y --data_dir databases/mapper_data')
 
 
 #Download DBCAN
 
-os.system('wget -P ./intermediate_files/DBCAN/ http://bcb.unl.edu/dbCAN2/download/dbCAN-HMMdb-V9.txt')
+os.system('wget -P ./databases/DBCAN/ http://bcb.unl.edu/dbCAN2/download/dbCAN-HMMdb-V9.txt')
 
 #BiG-SCAPE
 
