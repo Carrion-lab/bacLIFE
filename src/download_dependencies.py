@@ -15,6 +15,8 @@ if not os.path.exists('databases/DBCAN'):
    os.makedirs('databases/DBCAN')   
 if not os.path.exists('intermediate_files/BiG-SCAPE'):
    os.makedirs('intermediate_files/BiG-SCAPE')     
+if not os.path.exists('databases/BiG-SCAPE'):
+   os.makedirs('databases/BiG-SCAPE')     
 
 
 #Download PFAM
@@ -35,9 +37,9 @@ os.system('wget -P ./databases/DBCAN/ http://bcb.unl.edu/dbCAN2/download/dbCAN-H
 #BiG-SCAPE
 
 os.system('git clone https://github.com/medema-group/BiG-SCAPE.git --branch bigscape-v1 --single-branch')
-os.system('mv BiG-SCAPE intermediate_files/')
-os.system('rm intermediate_files/BiG-SCAPE/bigscape.py')
-os.system('cp src/bigscape.py intermediate_files/BiG-SCAPE/bigscape.py')
+os.system('mv BiG-SCAPE databases/')
+os.system('rm databases/BiG-SCAPE/bigscape.py')
+os.system('cp src/bigscape.py databases/BiG-SCAPE/bigscape.py')
 
 
 

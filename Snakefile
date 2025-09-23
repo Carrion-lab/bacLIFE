@@ -52,7 +52,7 @@ rule final:
             hmm_annotations = HMM_ANNOTATIONS,
             megamatrix = MEGAMATRIX,
             antismash = expand('intermediate_files/antismash/{genus}_{species}_{str}_{replicon}/{genus}_{species}_{str}_{replicon}.gbk', zip, genus = GENUS, species = SPECIES, str = STR, replicon = REPLICON),
-            bigscape_setup = "intermediate_files/BiG-SCAPE/bigscape.py",
+            bigscape_setup = "databases/BiG-SCAPE/bigscape.py",
             bigscape = BIGSCAPE,
             binary_table_GCF = 'intermediate_files/BiG-SCAPE/big_scape_binary_table.txt',
             rename_matrix = 'MEGAMATRIX_renamed.txt',
@@ -306,7 +306,7 @@ rule bigscape_exe:
         conda:
             "bigscape_bacLIFE"
         shell:
-            "python ./intermediate_files/BiG-SCAPE/bigscape.py -i {params.indir} -o {params.outdir} --pfam_dir databases/PFAM/ --mode glocal --mibig --cutoffs 0.3 0.7 --include_singletons --cores {params.threads} --mix; rm -r intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal; mv intermediate_files/BiG-SCAPE/bigscape_output/network_files/*hybrids_glocal intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal"
+            "python ./databases/BiG-SCAPE/bigscape.py -i {params.indir} -o {params.outdir} --pfam_dir databases/PFAM/ --mode glocal --mibig --cutoffs 0.3 0.7 --include_singletons --cores {params.threads} --mix; rm -r intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal; mv intermediate_files/BiG-SCAPE/bigscape_output/network_files/*hybrids_glocal intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal"
 
 rule extract_binary_table_GCF:
     input:
