@@ -9,13 +9,10 @@ CLUSTERING_FASTA = 'intermediate_files/clustering/protein_cluster'
 
 configfile: "config.json"
 THREADS = config['threads']
-THREADS_prokka_antismash = config['threads_prokka_antismash']
+THREADS_prokka = config['threads_prokka']
+THREADS_antismash = config['threads_antismash']
 MCL_INFLATION = config['mcl_inflation_value']
 LINCLUST_IDENTITY = config['linclust_identity']
-
-
-
-
 
 GENBANKFILES, = glob_wildcards("intermediate_files/annot/{genome}.gbk")
 NEWTAGFILE = "intermediate_files/combined_proteins/id2tags.tsv"
@@ -85,10 +82,10 @@ rule Prokka_annotation:
             str = "{str}",
             outdir = "intermediate_files/annot/{species}_{str}_{replicon}",
             prefix = "{genus}_{species}_{str}_{replicon}"
-        threads: config['threads_prokka_antismash']
+        threads: THREADS_prokka
         priority: 100
         run:
-                shell('prokka --force --outdir {params.outdir} --prefix {params.prefix} --locustag {params.str} --addgenes --increment 5 --centre NIOO-KNAW --genus {params.genus} --species {params.species} --str {params.str} --gcode 11 --cpus {THREADS_prokka_antismash} --evalue 1e-03 --rfam {input.file}')
+                shell('prokka --force --outdir {params.outdir} --prefix {params.prefix} --locustag {params.str} --addgenes --increment 5 --centre bacLIFE --genus {params.genus} --species {params.species} --str {params.str} --gcode 11 --cpus {THREADS_prokka} --evalue 1e-03 --rfam {input.file}')
 
 rule extract_proteins:
     input: rules.Prokka_annotation.output.prokka
@@ -281,11 +278,11 @@ rule antismash:
         params:
             out_dir = 'intermediate_files/antismash/{genus}_{species}_{str}_{replicon}/',
             threads = THREADS
-        threads: config['threads_prokka_antismash']
+        threads: THREADS_antismash
         conda:
             "antismash_bacLIFE"
         shell:
-            'antismash --cpus {THREADS_prokka_antismash} --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --genefinding-tool prodigal --smcog-trees {input}'
+            'antismash --cpus {params.threads} --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --genefinding-tool prodigal --smcog-trees {input}'
 
 
 
