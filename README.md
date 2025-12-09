@@ -13,7 +13,9 @@ You can find the complete wiki here [https://github.com/Carrion-lab/bacLIFE/wiki
 
 ![workflow](https://user-images.githubusercontent.com/69348873/231155358-7fbebb3c-f6f6-406a-989b-9d273b83aa1e.png)
 
-.
+# Citation
+
+If you use bacLIFE, please cite:  https://doi.org/10.1038/s41467-024-46302-y
 
 
 
