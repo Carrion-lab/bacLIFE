@@ -9,13 +9,10 @@ CLUSTERING_FASTA = 'intermediate_files/clustering/protein_cluster'
 
 configfile: "config.json"
 THREADS = config['threads']
-THREADS_prokka_antismash = config['threads_prokka_antismash']
+THREADS_prokka = config['threads_prokka']
+THREADS_antismash = config['threads_antismash']
 MCL_INFLATION = config['mcl_inflation_value']
 LINCLUST_IDENTITY = config['linclust_identity']
-
-
-
-
 
 GENBANKFILES, = glob_wildcards("intermediate_files/annot/{genome}.gbk")
 NEWTAGFILE = "intermediate_files/combined_proteins/id2tags.tsv"
@@ -29,7 +26,7 @@ KEGG_DESCRIPTIONS = "src/ko_description.txt"
 COG_ANNOTATION = "intermediate_files/cog_annotation/COG_annotation_clean.faa.finalcog"
 DBCAN_ANNOTATION = "intermediate_files/dbcan_annotation/DBCAN_annotation.txt"
 EGGNOG_ANNOTATION = 'intermediate_files/eggnog_annotation/eggnog_annotation.emapper.annotations'
-EGGNOG_DATA = 'intermediate_files/mapper_data'
+EGGNOG_DATA = 'databases/mapper_data'
 HMM_ANNOTATIONS = "intermediate_files/hmm_annotations.txt"
 MEGAMATRIX = "MEGAMATRIX.txt"
 MAPPING_FILE = 'mapping_file.txt'
@@ -52,7 +49,7 @@ rule final:
             hmm_annotations = HMM_ANNOTATIONS,
             megamatrix = MEGAMATRIX,
             antismash = expand('intermediate_files/antismash/{genus}_{species}_{str}_{replicon}/{genus}_{species}_{str}_{replicon}.gbk', zip, genus = GENUS, species = SPECIES, str = STR, replicon = REPLICON),
-            bigscape_setup = "intermediate_files/BiG-SCAPE/bigscape.py",
+            bigscape_setup = "databases/BiG-SCAPE/bigscape.py",
             bigscape = BIGSCAPE,
             binary_table_GCF = 'intermediate_files/BiG-SCAPE/big_scape_binary_table.txt',
             rename_matrix = 'MEGAMATRIX_renamed.txt',
@@ -85,10 +82,10 @@ rule Prokka_annotation:
             str = "{str}",
             outdir = "intermediate_files/annot/{species}_{str}_{replicon}",
             prefix = "{genus}_{species}_{str}_{replicon}"
-        threads: config['threads_prokka_antismash']
+        threads: THREADS_prokka
         priority: 100
         run:
-                shell('prokka --force --outdir {params.outdir} --prefix {params.prefix} --locustag {params.str} --addgenes --increment 5 --centre NIOO-KNAW --genus {params.genus} --species {params.species} --str {params.str} --gcode 11 --cpus {THREADS_prokka_antismash} --evalue 1e-03 --rfam {input.file}')
+                shell('prokka --force --outdir {params.outdir} --prefix {params.prefix} --locustag {params.str} --addgenes --increment 5 --centre bacLIFE --genus {params.genus} --species {params.species} --str {params.str} --gcode 11 --cpus {THREADS_prokka} --evalue 1e-03 --rfam {input.file}')
 
 rule extract_proteins:
     input: rules.Prokka_annotation.output.prokka
@@ -209,7 +206,7 @@ rule pfam:
             
     message: 'executing pfam.'
     run:
-        shell('hmmsearch --tblout {output.pfam} --cpu {THREADS} -E 1e-5 ./intermediate_files/PFAM/Pfam-A.hmm {input}')
+        shell('hmmsearch --tblout {output.pfam} --cpu {THREADS} -E 1e-5 ./databases/PFAM/Pfam-A.hmm {input}')
 
 rule EGGNOG:
     input:
@@ -245,7 +242,7 @@ rule dbCAN:
         output:
                 dbcan = DBCAN_ANNOTATION
         run:
-            shell('hmmsearch --tblout {output} -E 1e-5 --cpu {THREADS} ./intermediate_files/DBCAN/dbCAN-HMMdb-V9.txt {input}')
+            shell('hmmsearch --tblout {output} -E 1e-5 --cpu {THREADS} ./databases/DBCAN/dbCAN-HMMdb-V9.txt {input}')
 
 rule process_hmm_annotations:
     input:
@@ -281,18 +278,18 @@ rule antismash:
         params:
             out_dir = 'intermediate_files/antismash/{genus}_{species}_{str}_{replicon}/',
             threads = THREADS
-        threads: config['threads_prokka_antismash']
+        threads: THREADS_antismash
         conda:
             "antismash_bacLIFE"
         shell:
-            'antismash --cpus {THREADS_prokka_antismash} --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --genefinding-tool prodigal --smcog-trees {input}'
+            'antismash --cpus {params.threads} --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --genefinding-tool prodigal --smcog-trees {input}'
 
 
 
 rule bigscape_exe:
         input: 
             antismash = expand(rules.antismash.output, zip, genus = GENUS, species = SPECIES, str = STR, replicon = REPLICON),
-            pfam_hmm = 'intermediate_files/PFAM/Pfam-A.hmm'
+            pfam_hmm = 'databases/PFAM/Pfam-A.hmm'
         output:
             html = 'intermediate_files/BiG-SCAPE/bigscape_output/index.html',
             clustering = 'intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal/mix/mix_clustering_c0.70.tsv',
@@ -306,7 +303,7 @@ rule bigscape_exe:
         conda:
             "bigscape_bacLIFE"
         shell:
-            "python ./intermediate_files/BiG-SCAPE/bigscape.py -i {params.indir} -o {params.outdir} --pfam_dir intermediate_files/PFAM/ --mode glocal --mibig --cutoffs 0.3 0.7 --include_singletons --cores {params.threads} --mix; rm -r intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal; mv intermediate_files/BiG-SCAPE/bigscape_output/network_files/*hybrids_glocal intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal"
+            "python ./databases/BiG-SCAPE/bigscape.py -i {params.indir} -o {params.outdir} --pfam_dir databases/PFAM/ --mode glocal --mibig --cutoffs 0.3 0.7 --include_singletons --cores {params.threads} --mix; rm -r intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal; mv intermediate_files/BiG-SCAPE/bigscape_output/network_files/*hybrids_glocal intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal"
 
 rule extract_binary_table_GCF:
     input:
