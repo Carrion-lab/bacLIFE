@@ -4,5 +4,6 @@ channels:
   - conda-forge
 dependencies:
   - antismash=8.0.4
+  - diamond=2.0.15
   - biopython
   - numpy
