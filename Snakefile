@@ -282,7 +282,7 @@ rule antismash:
         conda:
             "antismash_bacLIFE"
         shell:
-            'antismash --cpus {params.threads} --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --genefinding-tool prodigal --smcog-trees {input}'
+            'antismash --cpus {THREADS_antismash} --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --genefinding-tool prodigal --smcog-trees {input}'
 
 
 
