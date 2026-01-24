@@ -32,7 +32,7 @@ os.system('download_eggnog_data.py -y --data_dir databases/mapper_data')
 
 #Download DBCAN
 
-os.system('wget -P ./databases/DBCAN/ http://bcb.unl.edu/dbCAN2/download/dbCAN-HMMdb-V9.txt')
+os.system('wget -P ./databases/DBCAN/ http://dbcan-hcc.unl.edu/download/dbCAN-HMMdb-V9.txt')
 
 #BiG-SCAPE
 
