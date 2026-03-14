@@ -282,7 +282,7 @@ rule antismash:
         conda:
             "antismash_bacLIFE"
         shell:
-            'antismash --cpus {THREADS_antismash} --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --genefinding-tool prodigal --smcog-trees {input}'
+            'rm -rf {params.out_dir} && antismash --cpus {THREADS_antismash} --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --genefinding-tool prodigal --smcog-trees {input}'
 
 
 
@@ -303,7 +303,7 @@ rule bigscape_exe:
         conda:
             "bigscape_bacLIFE"
         shell:
-            "python ./databases/BiG-SCAPE/bigscape.py -i {params.indir} -o {params.outdir} --pfam_dir databases/PFAM/ --mode glocal --mibig --cutoffs 0.3 0.7 --include_singletons --cores {params.threads} --mix; rm -r intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal; mv intermediate_files/BiG-SCAPE/bigscape_output/network_files/*hybrids_glocal intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal"
+            "rm -rf intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal && python ./databases/BiG-SCAPE/bigscape.py -i {params.indir} -o {params.outdir} --pfam_dir databases/PFAM/ --mode glocal --mibig --cutoffs 0.3 0.7 --include_singletons --cores {params.threads} --mix && mv intermediate_files/BiG-SCAPE/bigscape_output/network_files/*hybrids_glocal intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal"
 
 rule extract_binary_table_GCF:
     input:
