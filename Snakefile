@@ -242,7 +242,7 @@ rule dbCAN:
         output:
                 dbcan = DBCAN_ANNOTATION
         run:
-            shell('hmmsearch --tblout {output} -E 1e-5 --cpu {THREADS} ./databases/DBCAN/dbCAN-HMMdb-V9.txt {input}')
+            shell('hmmsearch --tblout {output} -E 1e-5 --cpu {THREADS} ./databases/DBCAN/dbCAN-HMMdb-V14.txt {input}')
 
 rule process_hmm_annotations:
     input:

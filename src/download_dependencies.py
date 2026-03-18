@@ -21,7 +21,7 @@ if not os.path.exists('databases/BiG-SCAPE'):
 
 #Download PFAM
 
-os.system('wget -P ./databases/PFAM/ ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam33.1/Pfam-A.hmm.gz')
+os.system('wget -P ./databases/PFAM/ ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam38.2/Pfam-A.hmm.gz')
 os.system('gunzip databases/PFAM/Pfam-A.hmm.gz' )
 os.system('hmmpress databases/PFAM/Pfam-A.hmm')
 
@@ -32,7 +32,7 @@ os.system('download_eggnog_data.py -y --data_dir databases/mapper_data')
 
 #Download DBCAN
 
-os.system('wget -P ./databases/DBCAN/ http://dbcan-hcc.unl.edu/download/dbCAN-HMMdb-V9.txt')
+os.system('wget https://pro.unl.edu/dbCAN2/download_file.php?file=dbCAN-HMMdb-V14.txt --no-check-certificate -O ./databases/DBCAN/dbCAN-HMMdb-V14.txt')
 
 #BiG-SCAPE
 
