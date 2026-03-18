@@ -49,7 +49,6 @@ rule final:
             hmm_annotations = HMM_ANNOTATIONS,
             megamatrix = MEGAMATRIX,
             antismash = expand('intermediate_files/antismash/{genus}_{species}_{str}_{replicon}/{genus}_{species}_{str}_{replicon}.gbk', zip, genus = GENUS, species = SPECIES, str = STR, replicon = REPLICON),
-            bigscape_setup = "databases/BiG-SCAPE/bigscape.py",
             bigscape = BIGSCAPE,
             binary_table_GCF = 'intermediate_files/BiG-SCAPE/big_scape_binary_table.txt',
             rename_matrix = 'MEGAMATRIX_renamed.txt',
@@ -292,9 +291,9 @@ rule bigscape_exe:
             pfam_hmm = 'databases/PFAM/Pfam-A.hmm'
         output:
             html = 'intermediate_files/BiG-SCAPE/bigscape_output/index.html',
-            clustering = 'intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal/mix/mix_clustering_c0.70.tsv',
-            network = 'intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal/mix/mix_c0.70.network',
-            annotations = 'intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal/Network_Annotations_Full.tsv'
+            clustering = 'intermediate_files/BiG-SCAPE/bigscape_output/output_files/c0.7/mix/mix_clustering_c0.7.tsv',
+            network = 'intermediate_files/BiG-SCAPE/bigscape_output/output_files/c0.7/mix/mix_c0.7.network',
+            annotations = 'intermediate_files/BiG-SCAPE/bigscape_output/output_files/c0.7/record_annotations.tsv'
         threads: THREADS
         params:
             outdir = 'intermediate_files/BiG-SCAPE/bigscape_output/',
@@ -303,8 +302,10 @@ rule bigscape_exe:
         conda:
             "bigscape_bacLIFE"
         shell:
-            "python ./databases/BiG-SCAPE/bigscape.py -i {params.indir} -o {params.outdir} --pfam_dir databases/PFAM/ --mode glocal --mibig --cutoffs 0.3 0.7 --include_singletons --cores {params.threads} --mix; rm -r intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal; mv intermediate_files/BiG-SCAPE/bigscape_output/network_files/*hybrids_glocal intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal"
-
+            """
+            bigscape cluster -i {params.indir} -o {params.outdir} -p databases/PFAM/ --mibig 4.0 --cutoffs 0.7 --include_singletons --cores {params.threads} --mix
+            for d in intermediate_files/BiG-SCAPE/bigscape_output/output_files/*/; do n=$(basename "$d" | grep -o 'c[0-9.]*'); [ -n "$n" ] && mv "$d" "intermediate_files/BiG-SCAPE/bigscape_output/output_files/$n"; done
+            """
 rule extract_binary_table_GCF:
     input:
         clustering = rules.bigscape_exe.output.clustering,
