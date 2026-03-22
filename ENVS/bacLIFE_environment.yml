@@ -12,11 +12,10 @@ dependencies:
     - scipy
     - biopython
     - diamond
-    - prokka=1.14.6
+    - prokka=1.15.6
     - bioawk
     - perl-bioperl
     - mmseqs2
-    - tbl2asn
     - hmmer==3.1b2
     - mcl
     - bioconductor-biostrings
