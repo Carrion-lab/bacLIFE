@@ -16,8 +16,11 @@ library(tidyverse)
 library(ggplot2)
 library(data.table)
 
+# args = commandArgs(trailingOnly=TRUE)
 
-args = commandArgs(trailingOnly=TRUE)
+args <- c("../network_files_paeni_bigscape1/network_files/hybrids_glocal/mix/mix_clustering_c0.70.tsv", "../network_files_paeni_bigscape1/network_files/hybrids_glocal/mix/mix_c0.70.network",
+ "../network_files_paeni_bigscape1/network_files/hybrids_glocal/Network_Annotations_Full.tsv", "../intermediate_files/BiG-SCAPE/mix_filtered.network", "../intermediate_files/BiG-SCAPE/GCF_annotation.txt", "../intermediate_files/BiG-SCAPE/annotation.txt", "../names_equivalence.txt")
+
 "Import Data Tables from BiG-SCAPE"
 #Clustering Tables
 clustering_df_mix <- read.delim(args[1], header = TRUE) #clustering dataframe
@@ -39,7 +42,7 @@ colnames(annotations_merged_df_mix) <- c('BGC Name', 'GCF No', 'Organism', 'BGC 
 'Extract Rows based on Logical Criteria (User Based Criteria) (Optional by User)'
 #sum(network_df_mix$Raw.distance > 0.1)
 network_df__distance_filtered <- network_df %>% filter(Raw.distance > 0.10)
-network_df_bgc_filtered <- network_df[!grepl("BGC", network_df$Clustername.1),]
+#network_df_bgc_filtered <- network_df[!grepl("BGC", network_df$Clustername.1),]
 
 
 

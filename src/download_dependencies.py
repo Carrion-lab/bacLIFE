@@ -36,10 +36,10 @@ os.system('wget https://pro.unl.edu/dbCAN2/download_file.php?file=dbCAN-HMMdb-V1
 
 #BiG-SCAPE
 
-os.system('git clone https://github.com/medema-group/BiG-SCAPE.git --branch bigscape-v1 --single-branch')
-os.system('mv BiG-SCAPE databases/')
-os.system('rm databases/BiG-SCAPE/bigscape.py')
-os.system('cp src/bigscape.py databases/BiG-SCAPE/bigscape.py')
+#os.system('git clone https://github.com/medema-group/BiG-SCAPE.git --branch bigscape-v1 --single-branch')
+#os.system('mv BiG-SCAPE databases/')
+#os.system('rm databases/BiG-SCAPE/bigscape.py')
+#os.system('cp src/bigscape.py databases/BiG-SCAPE/bigscape.py')
 
 
 

@@ -291,9 +291,7 @@ rule bigscape_exe:
             pfam_hmm = 'databases/PFAM/Pfam-A.hmm'
         output:
             html = 'intermediate_files/BiG-SCAPE/bigscape_output/index.html',
-            clustering = 'intermediate_files/BiG-SCAPE/bigscape_output/output_files/c0.7/mix/mix_clustering_c0.7.tsv',
-            network = 'intermediate_files/BiG-SCAPE/bigscape_output/output_files/c0.7/mix/mix_c0.7.network',
-            annotations = 'intermediate_files/BiG-SCAPE/bigscape_output/output_files/c0.7/record_annotations.tsv'
+            db = 'intermediate_files/BiG-SCAPE/bigscape_output/bigscape_output.db'
         threads: THREADS
         params:
             outdir = 'intermediate_files/BiG-SCAPE/bigscape_output/',
@@ -306,11 +304,30 @@ rule bigscape_exe:
             bigscape cluster -i {params.indir} -o {params.outdir} -p databases/PFAM/ --mibig 4.0 --cutoffs 0.7 --include_singletons --cores {params.threads} --mix
             for d in intermediate_files/BiG-SCAPE/bigscape_output/output_files/*/; do n=$(basename "$d" | grep -o 'c[0-9.]*'); [ -n "$n" ] && mv "$d" "intermediate_files/BiG-SCAPE/bigscape_output/output_files/$n"; done
             """
+            
 rule extract_binary_table_GCF:
     input:
-        clustering = rules.bigscape_exe.output.clustering,
-        network = rules.bigscape_exe.output.network,
-        annotations = rules.bigscape_exe.output.annotations
+        db = rules.bigscape_exe.output.db
+    params:
+        output_code_I_network = "intermediate_files/BiG-SCAPE/mix_filtered.network",
+        output_code_I_annotations = 'intermediate_files/BiG-SCAPE/GCF_annotation.txt',
+        output_code_II = 'intermediate_files/BiG-SCAPE/abs_pres_table.csv',
+        names = 'names_equivalence.txt'
+    output:
+        filtered_network = "intermediate_files/BiG-SCAPE/mix_filtered.network",
+        annotations = 'intermediate_files/BiG-SCAPE/annotation.txt',
+        merged_annotations = 'intermediate_files/BiG-SCAPE/GCF_annotation.txt',
+        abs_presence_list = 'intermediate_files/BiG-SCAPE/abs_pres_table.csv',
+        binary_matrix = 'intermediate_files/BiG-SCAPE/big_scape_binary_table.txt'
+    run:
+        shell("Rscript src/I-bigscape_query.R")
+        shell("python src/II_Absence_Presence.py intermediate_files/BiG-SCAPE/GCF_annotation.txt intermediate_files/BiG-SCAPE/abs_pres_table.csv ")
+        shell("Rscript src/III_Absence_Presence_GCF.R intermediate_files/BiG-SCAPE/abs_pres_table.csv {output.binary_matrix}")
+
+           
+rule extract_binary_table_GCF:
+    input:
+        db = rules.bigscape_exe.output.db
     params:
         output_code_I_network = "intermediate_files/BiG-SCAPE/mix_filtered.network",
         output_code_I_annotations = 'intermediate_files/BiG-SCAPE/GCF_annotation.txt',

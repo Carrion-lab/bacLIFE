@@ -20,7 +20,7 @@ abs_pres_matrix <-abs_pres_matrix[, c(2,3)] #removal of first column
 #Modify GCF.No and Genome Columns
 abs_pres_matrix <- abs_pres_matrix[!grepl("BGC", abs_pres_matrix$Genome),]
 abs_pres_matrix$Genome<- gsub("BGC", "_BGC", abs_pres_matrix$Genome)
-abs_pres_matrix$GCF.No<- gsub("[a-zA-Z ]", "", abs_pres_matrix$GCF.No) #Removes BiG-SCAPE Class from GCF Column
+abs_pres_matrix$GCF.No<- gsub("[a-zA-Z .]", "", abs_pres_matrix$GCF.No) #Removes BiG-SCAPE Class from GCF Column
 abs_pres_matrix$GCF.No<- gsub("-_", "", abs_pres_matrix$GCF.No)
 abs_pres_matrix$GCF.No <- sub("^", "GCF", abs_pres_matrix$GCF.No) #Appends GCF to the Front of the Number
 
