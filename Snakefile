@@ -308,13 +308,7 @@ rule bigscape_exe:
 rule extract_binary_table_GCF:
     input:
         db = rules.bigscape_exe.output.db
-    params:
-        output_code_I_network = "intermediate_files/BiG-SCAPE/mix_filtered.network",
-        output_code_I_annotations = 'intermediate_files/BiG-SCAPE/GCF_annotation.txt',
-        output_code_II = 'intermediate_files/BiG-SCAPE/abs_pres_table.csv',
-        names = 'names_equivalence.txt'
     output:
-        filtered_network = "intermediate_files/BiG-SCAPE/mix_filtered.network",
         annotations = 'intermediate_files/BiG-SCAPE/annotation.txt',
         merged_annotations = 'intermediate_files/BiG-SCAPE/GCF_annotation.txt',
         abs_presence_list = 'intermediate_files/BiG-SCAPE/abs_pres_table.csv',
@@ -323,28 +317,6 @@ rule extract_binary_table_GCF:
         shell("Rscript src/I-bigscape_query.R")
         shell("python src/II_Absence_Presence.py intermediate_files/BiG-SCAPE/GCF_annotation.txt intermediate_files/BiG-SCAPE/abs_pres_table.csv ")
         shell("Rscript src/III_Absence_Presence_GCF.R intermediate_files/BiG-SCAPE/abs_pres_table.csv {output.binary_matrix}")
-
-           
-rule extract_binary_table_GCF:
-    input:
-        db = rules.bigscape_exe.output.db
-    params:
-        output_code_I_network = "intermediate_files/BiG-SCAPE/mix_filtered.network",
-        output_code_I_annotations = 'intermediate_files/BiG-SCAPE/GCF_annotation.txt',
-        output_code_II = 'intermediate_files/BiG-SCAPE/abs_pres_table.csv',
-        names = 'names_equivalence.txt'
-    output:
-        filtered_network = "intermediate_files/BiG-SCAPE/mix_filtered.network",
-        annotations = 'intermediate_files/BiG-SCAPE/annotation.txt',
-        merged_annotations = 'intermediate_files/BiG-SCAPE/GCF_annotation.txt',
-        abs_presence_list = 'intermediate_files/BiG-SCAPE/abs_pres_table.csv',
-        binary_matrix = 'intermediate_files/BiG-SCAPE/big_scape_binary_table.txt'
-    run:
-        shell("Rscript src/I-BIGSCAPE_revision.R {input.clustering} {input.network} {input.annotations} intermediate_files/BiG-SCAPE/mix_filtered.network intermediate_files/BiG-SCAPE/GCF_annotation.txt {output.annotations} {params.names}")
-        shell("python src/II_Absence_Presence.py intermediate_files/BiG-SCAPE/GCF_annotation.txt intermediate_files/BiG-SCAPE/abs_pres_table.csv ")
-        shell("Rscript src/III_Absence_Presence_GCF.R intermediate_files/BiG-SCAPE/abs_pres_table.csv {output.binary_matrix}")
-
-
 
 rule rename_MEGAMATRIX:
     input:
@@ -359,7 +331,6 @@ rule rename_MEGAMATRIX:
     run:
         shell('Rscript src/rename_MEGAMATRIX.R {input.genes} {input.BGCs} {params} {output.genes} {output.BGCs} {output.mapping_file}')
         
-
 
 rule phylophlan:
     input:
