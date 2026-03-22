@@ -4,6 +4,7 @@
     "linclust_identity": 0.95,
     "threads_prokka": 1,
     "threads_antismash": 1,
+    "MIBiG_database": "4.0",
     "phylo_database" : "amphora2"
 }
 

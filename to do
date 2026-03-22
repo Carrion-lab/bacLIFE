@@ -3,3 +3,7 @@
 - Update/fix eggnog
 - Update bigscape X
 - Prokka to BAKTA?
+
+
+(bacLIFE_environment) kevinb@nioo0003:~/bacLIFE_Big2$ python src/prepare_app_inputs.py
+mv: cannot stat 'intermediate_files/BiG-SCAPE/bigscape_output/BGC_descriptions.txt': No such file or directory

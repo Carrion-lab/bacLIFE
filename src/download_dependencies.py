@@ -37,21 +37,11 @@ os.system('wget -P ./databases/mapper_data/ http://eggnog6.embl.de/download/emap
 
 os.system('gunzip ./databases/mapper_data/*.gz')
 
-os.system('tar -xvf ./databases/mapper_data/eggnog.taxa.tar.gz -C ./databases/mapper_data/')
+os.system('tar -xvf ./databases/mapper_data/eggnog.taxa.tar -C ./databases/mapper_data/')
 
 #Download DBCAN
 
 os.system('wget https://pro.unl.edu/dbCAN2/download_file.php?file=dbCAN-HMMdb-V14.txt --no-check-certificate -O ./databases/DBCAN/dbCAN-HMMdb-V14.txt')
-
-#BiG-SCAPE
-
-#os.system('git clone https://github.com/medema-group/BiG-SCAPE.git --branch bigscape-v1 --single-branch')
-#os.system('mv BiG-SCAPE databases/')
-#os.system('rm databases/BiG-SCAPE/bigscape.py')
-#os.system('cp src/bigscape.py databases/BiG-SCAPE/bigscape.py')
-
-
-
 
 ##Phylophlan
 

@@ -301,8 +301,7 @@ rule bigscape_exe:
             "bigscape_bacLIFE"
         shell:
             """
-            bigscape cluster -i {params.indir} -o {params.outdir} -p databases/PFAM/ --mibig 4.0 --cutoffs 0.7 --include_singletons --cores {params.threads} --mix
-            for d in intermediate_files/BiG-SCAPE/bigscape_output/output_files/*/; do n=$(basename "$d" | grep -o 'c[0-9.]*'); [ -n "$n" ] && mv "$d" "intermediate_files/BiG-SCAPE/bigscape_output/output_files/$n"; done
+            bigscape cluster -i {params.indir} -o {params.outdir} -p databases/PFAM/Pfam-A.hmm -m 4.0 --gcf-cutoffs 0.7 --include-singletons --cores {params.threads} --mix
             """
             
 rule extract_binary_table_GCF:
