@@ -134,8 +134,6 @@ ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                                                                         
                                                                         tags$label(h3(tags$b('PCoA plot'))),
                                                                         plotlyOutput(outputId = "PCAplotBGC",width = '800px',height = '500px')),
-                                                               br(),
-                                                               br(),
                                                                tabPanel('BGCs heatmap',
                                                                         tags$label(h3(tags$b('Heatmap Gene Cluster Families'))),
                                                                         selectInput('bgcheatmap_column', label = 'Side Column color:', choices = mapping_options),
