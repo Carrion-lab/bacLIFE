@@ -24,12 +24,14 @@ def genbank2faa(infile, outfile):
             
             if 'organism' in sourcefeature.qualifiers:
                 organism = sourcefeature.qualifiers['organism'][0]
-                strain = ''
+
+                #Outdated code to add strain information to the organism name. This is not needed anymore as BAKTA already adds the strain information to the organism name in the source feature.
+                #strain = ''
                 
-                if 'strain' in sourcefeature.qualifiers:
-                    strain = sourcefeature.qualifiers['strain'][0]
-                    strain = strain.replace(' ','').replace(':','').replace('|','')
-                organism = organism + '_' + strain
+                #if 'strain' in sourcefeature.qualifiers:
+                #    strain = sourcefeature.qualifiers['strain'][0]
+                #    strain = strain.replace(' ','').replace(':','').replace('|','')
+                #organism = organism + '_' + strain
                 
             #else:
             #    organism = s.annotations['organism'].replace(' ','_').replace(':','_').replace('|','_')

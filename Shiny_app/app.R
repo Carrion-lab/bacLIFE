@@ -92,7 +92,10 @@ ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                                      sidebarLayout(position = 'left',
                                                    sidebarPanel(width = 3,'Input parameters',
                                                                 selectInput('PCA_database', label = "Database:", choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'PROKKA', 'DBCAN')),
-                                                                selectInput("PCA_color", label = "Color:", choices = mapping_options_PCA)
+                                                                selectInput("PCA_color", label = "Color:", choices = mapping_options_PCA),
+                                                                checkboxInput("custom_colors", "Custom PCA Colors", value = FALSE),
+                                                                uiOutput("custom_color_inputs"),
+                                                                actionButton("refresh_pca", "Refresh PCA")
                                                    ),
                                                    mainPanel(width = 7,
                                                              tabsetPanel(
@@ -126,7 +129,10 @@ ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                                      h1(tags$b("Biosynthetic gene clusters")),
                                      sidebarLayout(position = 'left',
                                                    sidebarPanel(width = 3,'Input parameters',
-                                                                selectInput("PCA_color_BGC", label = "Color:", choices = mapping_options_PCA)
+                                                                selectInput("PCA_color_BGC", label = "Color:", choices = mapping_options_PCA),
+                                                                checkboxInput("custom_colors_bgc", "Use Custom Colors", value = FALSE),
+                                                                uiOutput("custom_color_inputs_bgc"),
+                                                                actionButton("refresh_pca_bgc", "Refresh PCA")
                                                    ),
                                                    mainPanel(width = 7,
                                                              tabsetPanel(
@@ -457,6 +463,62 @@ server <- function(input, output){
   
   options(shiny.maxRequestSize=20*1024^2)
   
+  unique_vals <- reactive({ unique(mapping_file[[input$PCA_color]]) })
+  
+  output$custom_color_inputs <- renderUI({
+    if(input$custom_colors){
+      lapply(unique_vals(), function(val){
+        textInput(inputId = paste0("color_", val), label = val, value = "#000000")
+      })
+    }
+  })
+  
+  trigger <- reactiveVal(0)
+  observeEvent(input$refresh_pca, { trigger(trigger() + 1) })
+  
+  pca_colors <- reactive({
+    if(!input$custom_colors){
+      unique_vals <- unique_vals()
+      n <- length(unique_vals)
+      colors <- glasbey(n)
+      colors <- setNames(colors, unique_vals)
+    } else {
+      trigger()
+      unique_vals <- unique_vals()
+      colors <- sapply(unique_vals, function(val) input[[paste0("color_", val)]])
+      colors <- setNames(colors, unique_vals)
+    }
+    colors
+  })
+  
+  unique_vals_bgc <- reactive({ unique(mapping_file[[input$PCA_color_BGC]]) })
+  
+  output$custom_color_inputs_bgc <- renderUI({
+    if(input$custom_colors_bgc){
+      lapply(unique_vals_bgc(), function(val){
+        textInput(inputId = paste0("color_bgc_", val), label = val, value = "#000000")
+      })
+    }
+  })
+  
+  trigger_bgc <- reactiveVal(0)
+  observeEvent(input$refresh_pca_bgc, { trigger_bgc(trigger_bgc() + 1) })
+  
+  pca_colors_bgc <- reactive({
+    if(!input$custom_colors_bgc){
+      unique_vals <- unique_vals_bgc()
+      n <- length(unique_vals)
+      colors <- glasbey(n)
+      colors <- setNames(colors, unique_vals)
+    } else {
+      trigger_bgc()
+      unique_vals <- unique_vals_bgc()
+      colors <- sapply(unique_vals, function(val) input[[paste0("color_bgc_", val)]])
+      colors <- setNames(colors, unique_vals)
+    }
+    colors
+  })
+  
   
   output$image1 <- renderImage({
     list(src='www/bacLIFE_wokflow.png', height = '400px', width= '850px')
@@ -654,8 +716,9 @@ server <- function(input, output){
     eig <- GCF_eig
     input_list <- list(plot_pca, eig )
     color_column <- input$PCA_color_BGC
+    colors <- pca_colors_bgc()
     plot <- ggplot(input_list[[1]], aes_string(x = 'X', y = 'Y', color = color_column, label= 'Sample'))  + xlab(paste0('PC1 - ', round(input_list[[2]][1],2), '%', sep='')) + 
-      ylab(paste0('PC2 - ', round(input_list[[2]][2],2), '%', sep='')) + geom_point(aes_string(color = color_column)) + theme_bw() +  scale_color_manual(values = as.character(glasbey(n = nrow(input_list[[1]]))))
+      ylab(paste0('PC2 - ', round(input_list[[2]][2],2), '%', sep='')) + geom_point(aes_string(color = color_column)) + theme_bw() +  scale_color_manual(values = colors)
     ggplotly(plot)
     
   })
@@ -667,8 +730,10 @@ server <- function(input, output){
     
     m <- highlight_key(input_list[[1]])
     
+    colors <- pca_colors()
+    
     plot <- ggplot(m, aes_string(x = 'X', y = 'Y', color = color_column, label= 'Sample'))  + xlab(paste0('PC1 - ', round(input_list[[2]][1],2), '%', sep='')) + 
-      ylab(paste0('PC2 - ', round(input_list[[2]][2],2), '%', sep='')) + geom_point(aes_string(color = color_column)) + theme_bw() +  scale_color_manual(values = as.character(glasbey(n = nrow(input_list[[1]]))))
+      ylab(paste0('PC2 - ', round(input_list[[2]][2],2), '%', sep='')) + geom_point(aes_string(color = color_column)) + theme_bw() +  scale_color_manual(values = colors)
     gg <- highlight(ggplotly(plot, height = 500), 'plotly_selected')
     p <- crosstalk::bscols(gg, DT::datatable(m), widths = 10,  device = 'lg')
     p

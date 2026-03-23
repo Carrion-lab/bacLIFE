@@ -12,7 +12,6 @@ dependencies:
     - scipy
     - biopython
     - diamond
-    - prokka=1.15.6
     - bioawk
     - perl-bioperl
     - mmseqs2
