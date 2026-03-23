@@ -39,7 +39,8 @@ source('data_app.R')
 ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                  tabPanel('INTRODUCTION',
                           sidebarLayout(position = 'left',
-                                        sidebarPanel(width = 3,p('Authors: Guillermo Guerrero & Victor Carrion'),
+                                        sidebarPanel(width = 3,p('Authors: Guillermo Guerrero, Kevin Bretscher & Victor Carrion'),
+                                                     p('Version: 1.2.0, GitHub: https://github.com/CarrionLab/bacLIFE'),
                                                      p('Instituto de Hortofruticultura Subtropical y Mediterránea (IHSM)'),
                                                      p('Universidad de Malaga (UMA)'),
                                                      p('Institute of Biology Leiden (IBL)'),
@@ -70,7 +71,7 @@ ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                                                   p(style="text-align: justify",downloadfasta),
                                                   
                                                   
-                                                  p(style="text-align: justify","bacLIFE was created by the CarrionLab of the Institute of Biology Leiden's  (IBL) plant-microbiome interaction department."),
+                                                  p(style="text-align: justify","bacLIFE was created by the CarrionLab of the Institute of Biology Leiden's (IBL) plant-microbiome interaction department."),
                                                   headerPanel(""),
                                                   headerPanel(""),
                                                   
