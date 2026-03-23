@@ -13,6 +13,6 @@ os.system('mv intermediate_files/BiG-SCAPE/annotation.txt Shiny_app/input/')
 
 os.system('mv intermediate_files/combined_proteins/combined_proteins.fasta Shiny_app/input/')
 
-os.system('mv intermediate_files/BiG-SCAPE/bigscape_output/BGC_descriptions.txt Shiny_app/input/')
+os.system('mv intermediate_files/BiG-SCAPE/BGC_descriptions.txt Shiny_app/input/')
 
 os.system('mv intermediate_files/antismash Shiny_app/')
