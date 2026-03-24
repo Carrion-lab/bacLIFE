@@ -117,12 +117,12 @@ pfam_agg_matrix = as.data.frame(pfam_agg_matrix)
 pfam_agg_matrix = pfam_agg_matrix[!is.na(pfam_agg_matrix$id),]
 
 
-###PROKKA MATRIX UPSET PLOTS
-prokka_matrix <- as.data.table(matrix[,c(2:n_samples, (n_samples + 12))])
-prokka_agg_matrix = prokka_matrix[, lapply(.SD, sum), by = prokkadescription, .SDcols = colnames(prokka_matrix)[1:(ncol(prokka_matrix) - 1)]]
-colnames(prokka_agg_matrix)[1] = 'id'
-prokka_agg_matrix = as.data.frame(prokka_agg_matrix)
-prokka_agg_matrix = prokka_agg_matrix[!is.na(prokka_agg_matrix$id),]
+###bakta MATRIX UPSET PLOTS
+bakta_matrix <- as.data.table(matrix[,c(2:n_samples, (n_samples + 12))])
+bakta_agg_matrix = bakta_matrix[, lapply(.SD, sum), by = baktadescription, .SDcols = colnames(bakta_matrix)[1:(ncol(bakta_matrix) - 1)]]
+colnames(bakta_agg_matrix)[1] = 'id'
+bakta_agg_matrix = as.data.frame(bakta_agg_matrix)
+bakta_agg_matrix = bakta_agg_matrix[!is.na(bakta_agg_matrix$id),]
 
 
 
@@ -263,15 +263,15 @@ pfam_eig <- pfam_pca_input[[2]]
 pfam_dend <- dendogram(pfam_matrix)
 
 
-###PROKKA matrix ###
-prokka_matrix <- prokka_agg_matrix[prokka_agg_matrix$id != 'hypothetical protein',] 
-prokka_matrix <- aggregate_matrix(prokka_matrix)
-prokka_matrix[prokka_matrix > 1] <- 1
-prokka_pca_input <- pcoa_function(prokka_matrix) 
-prokka_pca <- merge(prokka_pca_input[[1]], mapping_file, by = 'Sample', all.x = T)
-prokka_eig <- prokka_pca_input[[2]]
+###bakta matrix ###
+bakta_matrix <- bakta_agg_matrix[bakta_agg_matrix$id != 'hypothetical protein',] 
+bakta_matrix <- aggregate_matrix(bakta_matrix)
+bakta_matrix[bakta_matrix > 1] <- 1
+bakta_pca_input <- pcoa_function(bakta_matrix) 
+bakta_pca <- merge(bakta_pca_input[[1]], mapping_file, by = 'Sample', all.x = T)
+bakta_eig <- bakta_pca_input[[2]]
 
-prokka_dend <- dendogram(prokka_matrix)
+bakta_dend <- dendogram(bakta_matrix)
 
 ###DBCAN matrix ###
 dbcan_matrix <- aggregate_matrix(dbcan_agg_matrix)

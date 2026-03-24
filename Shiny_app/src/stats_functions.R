@@ -386,14 +386,14 @@ stats <- function(input_list, clean_matrix){
     matrix_stats<- remove_constant_columns(matrix_stats)
     matrix_annotation <- distinct(annotations[,c(grep("pfamid", colnames(annotations)), grep("pfamid", colnames(annotations)) + 1)])
   }
-  if (db == 'PROKKA'){
-    matrix_stats <- clean_matrix[,c(2:n_samples, grep("prokkadescription", colnames(clean_matrix)))]
-    matrix_stats <- matrix_stats[matrix_stats$prokkadescription != 'hypothetical protein',] 
+  if (db == 'BAKTA'){
+    matrix_stats <- clean_matrix[,c(2:n_samples, grep("baktadescription", colnames(clean_matrix)))]
+    matrix_stats <- matrix_stats[matrix_stats$baktadescription != 'hypothetical protein',] 
     matrix_stats <- aggregate(matrix_stats[,1:(n_samples - 1)], by = list(id = matrix_stats[,n_samples]), FUN=sum)
     matrix_stats<- remove_constant_columns(matrix_stats)
-    matrix_annotation <- distinct(annotations[,c(grep("prokkadescription", colnames(annotations)), grep("prokkadescription", colnames(annotations)))])
+    matrix_annotation <- distinct(annotations[,c(grep("baktadescription", colnames(annotations)), grep("baktadescription", colnames(annotations)))])
     colnames(matrix_annotation)[1] <- 'id'
-    colnames(matrix_annotation)[2] <- 'prokkadescription'
+    colnames(matrix_annotation)[2] <- 'baktadescription'
     
   }
   if (db == 'DBCAN'){

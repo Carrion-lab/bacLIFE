@@ -91,7 +91,7 @@ ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                                      h1(tags$b("Gene clusters")),
                                      sidebarLayout(position = 'left',
                                                    sidebarPanel(width = 3,'Input parameters',
-                                                                selectInput('PCA_database', label = "Database:", choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'PROKKA', 'DBCAN')),
+                                                                selectInput('PCA_database', label = "Database:", choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'BAKTA', 'DBCAN')),
                                                                 selectInput("PCA_color", label = "Color:", choices = mapping_options_PCA),
                                                                 checkboxInput("custom_colors", "Custom PCA Colors", value = FALSE),
                                                                 uiOutput("custom_color_inputs"),
@@ -188,7 +188,7 @@ ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                                      h1(tags$b("Gene clusters")),
                                      sidebarLayout(position = 'left',
                                                    sidebarPanel(width = 3,'Input parameters',
-                                                                selectInput('clusterclass', label = 'Upset plot data:', choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'PROKKA', 'DBCAN', 'GCF')),
+                                                                selectInput('clusterclass', label = 'Upset plot data:', choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'BAKTA', 'DBCAN', 'GCF')),
                                                                 sliderInput('knumber', label = 'Number of clusters KNN:', min = 1, max = 15, value = 2),
                                                                 sliderInput('hdbscannumber', label = 'Minimum points/cluster HDBSCAN:', min = 2, max = 100, value = 2),
                                                                 sliderInput('dendonumber', label = 'Number of groups to cut dendrogram:', min = 2, max = 15, value = 2)
@@ -287,7 +287,7 @@ ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                                      h1(tags$b("Core-Genome")),
                                      sidebarLayout(position = 'left',
                                                    sidebarPanel(width = 3,'Input parameters',
-                                                                selectInput('upsetclass', label = 'Upset plot data:', choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'PROKKA', 'DBCAN', 'GCF')),
+                                                                selectInput('upsetclass', label = 'Upset plot data:', choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'BAKTA', 'DBCAN', 'GCF')),
                                                                 selectInput('upsetcolumn', label = 'Upset plot group:', choices = mapping_options),
                                                                 #selectInput('coreprocess', label = 'Select COG process:', choices = cog_process_options)
                                                    ),
@@ -365,7 +365,7 @@ ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                           h1(tags$b("Statistics")),
                           sidebarLayout(position = 'left',
                                         sidebarPanel(width = 3,
-                                                     selectInput('data_for_stats', label = "Select data to make statistics:", choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'PROKKA', 'DBCAN', 'GCF')),
+                                                     selectInput('data_for_stats', label = "Select data to make statistics:", choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'BAKTA', 'DBCAN', 'GCF')),
                                                      selectInput('column_for_stats', label = "Select column to make statistics:", choices = mapping_options),
                                                      uiOutput('inputs1'),
                                                      uiOutput('inputs2'),
@@ -424,7 +424,7 @@ ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                           sidebarLayout(position = 'left',
                                         sidebarPanel(width = 3,
                                                      selectInput('data_for_msa', label = "Select bacteria:", choices = as.list(c('All', unique(mapping_file$Sample) ))),
-                                                     selectInput('msacolumn', label = 'Select database', choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'PROKKA', 'DBCAN')),
+                                                     selectInput('msacolumn', label = 'Select database', choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'BAKTA', 'DBCAN')),
                                                      textInput('msaid', 'Select cluster: ', value = ''),
                                                      #actionButton("gomsa", "Get fasta"),
                                                      downloadButton("downloadFASTA", "Download")
@@ -559,8 +559,8 @@ server <- function(input, output){
     if (data == 'PFAM'){
       plot <- general_upset_plot(pfam_agg_matrix, mapping_file, 'pfam', group)
     }
-    if (data == 'PROKKA'){
-      plot <- general_upset_plot(prokka_agg_matrix, mapping_file, 'prokka', group)
+    if (data == 'BAKTA'){
+      plot <- general_upset_plot(bakta_agg_matrix, mapping_file, 'bakta', group)
     }
     if (data == 'DBCAN'){
       plot <- general_upset_plot(dbcan_agg_matrix, mapping_file, 'dbcan', group)
@@ -668,9 +668,9 @@ server <- function(input, output){
       plot_pca <-pfam_pca
       eig <- pfam_eig
     }
-    if (data == 'PROKKA'){
-      plot_pca <-prokka_pca
-      eig <- prokka_eig
+    if (data == 'BAKTA'){
+      plot_pca <-bakta_pca
+      eig <- bakta_eig
     }
     if (data == 'DBCAN'){
       plot_pca <-dbcan_pca
@@ -698,8 +698,8 @@ server <- function(input, output){
     if (data == 'PFAM'){
       dend <- pfam_dend
     }
-    if (data == 'PROKKA'){
-      dend <- prokka_dend
+    if (data == 'BAKTA'){
+      dend <- bakta_dend
     }
     if (data == 'DBCAN'){
       dend <- dbcan_dend
@@ -799,8 +799,8 @@ server <- function(input, output){
     if (data == 'PFAM'){
       plot_pca <-pfam_pca
     }
-    if (data == 'PROKKA'){
-      plot_pca <-prokka_pca
+    if (data == 'BAKTA'){
+      plot_pca <-bakta_pca
     }
     if (data == 'DBCAN'){
       plot_pca <-dbcan_pca
@@ -826,8 +826,8 @@ server <- function(input, output){
     if (data == 'PFAM'){
       dend <- pfam_dend
     }
-    if (data == 'PROKKA'){
-      dend <- prokka_dend
+    if (data == 'BAKTA'){
+      dend <- bakta_dend
     }
     if (data == 'DBCAN'){
       dend <- dbcan_dend
@@ -1017,7 +1017,7 @@ server <- function(input, output){
   output$uniquegenestable <-  DT::renderDataTable(server=F,{
     bacteria = vals_uniquegenestable()
     subset_matrix = singletons[,c('clusters', bacteria, 'keggid', 'kegg_description', "cogid", "cog_description", "pfamid",
-                                  "pfam_description", "dbcanid", "dbcan_description", "prokkadescription")]
+                                  "pfam_description", "dbcanid", "dbcan_description", "baktadescription")]
     
     subset_matrix = subset_matrix %>% filter(across(2) > 0)
     substet2print =  DT::datatable(
@@ -1235,7 +1235,7 @@ server <- function(input, output){
   output$cluster_hit <- DT::renderDataTable(server=F,{
     hit = input$cluster2distribution
     cluster_hit = matrix[matrix$clusters %in% hit,]
-    cluster_hit = cluster_hit[,c('clusters', 'keggid', 'kegg_description', 'cogid', 'cog_description', 'pfamid', 'pfam_description', 'dbcanid', 'dbcan_description', 'prokkadescription')]
+    cluster_hit = cluster_hit[,c('clusters', 'keggid', 'kegg_description', 'cogid', 'cog_description', 'pfamid', 'pfam_description', 'dbcanid', 'dbcan_description', 'baktadescription')]
     
     cluster_hit <- DT::datatable(
       cluster_hit,
