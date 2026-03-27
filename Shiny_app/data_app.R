@@ -280,6 +280,8 @@ dbcan_pca_input <- pcoa_function(dbcan_matrix)
 dbcan_pca <- merge(dbcan_pca_input[[1]], mapping_file, by = 'Sample', all.x = T)
 dbcan_eig <- dbcan_pca_input[[2]]
 
+dbcan_matrix <- dbcan_matrix[, colSums(dbcan_matrix) > 0] #remove columns with all 0s for when genomes do not have any dbcan annotations, otherwise the dendogram function will not work
+
 dbcan_dend <- dendogram(dbcan_matrix)
 
 
