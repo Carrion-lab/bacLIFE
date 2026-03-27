@@ -7,7 +7,6 @@ channels:
 dependencies:
     - bioconductor-genomeinfodbdata=1.2.7
     - blast
-    - phylophlan
     - snakemake
     - scipy
     - biopython
