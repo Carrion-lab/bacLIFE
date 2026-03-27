@@ -13,6 +13,8 @@ THREADS_bakta = config['threads_bakta']
 THREADS_antismash = config['threads_antismash']
 MCL_INFLATION = config['mcl_inflation_value']
 LINCLUST_IDENTITY = config['linclust_identity']
+MIBIG_VERSION = config['MIBiG_version']
+GCF_CUTOFF = config['GCF_cutoff']
 
 GENBANKFILES, = glob_wildcards("intermediate_files/annot/{genome}.gbff")
 NEWTAGFILE = "intermediate_files/combined_proteins/id2tags.tsv"
@@ -308,13 +310,15 @@ rule bigscape_exe:
         threads: THREADS
         params:
             outdir = 'intermediate_files/BiG-SCAPE/bigscape_output/',
+            mibig_version = MIBIG_VERSION,
+            gcf_cutoff = GCF_CUTOFF,
             threads = THREADS,
             indir = rules.directories.params.antismash
         conda:
             "bigscape_bacLIFE"
         shell:
             """
-            bigscape cluster -i {params.indir} -o {params.outdir} -p databases/PFAM/Pfam-A.hmm -m 4.0 --gcf-cutoffs 0.7 --include-singletons --cores {params.threads} --mix
+            bigscape cluster -i {params.indir} -o {params.outdir} -p databases/PFAM/Pfam-A.hmm -m {params.mibig_version} --gcf-cutoffs {params.gcf_cutoff} --include-singletons --cores {params.threads} --mix
             """
             
 rule extract_binary_table_GCF:

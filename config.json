@@ -4,7 +4,8 @@
     "linclust_identity": 0.95,
     "threads_bakta": 1,
     "threads_antismash": 1,
-    "MIBiG_database": "4.0",
+    "MIBiG_version": 4.0,
+    "GCF_cutoff": 0.7,
     "phylo_database" : "amphora2"
 }
 

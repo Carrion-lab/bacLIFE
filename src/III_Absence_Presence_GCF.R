@@ -28,7 +28,7 @@ abs_pres_matrix$GCF.No <- sub("^", "GCF", abs_pres_matrix$GCF.No) #Appends GCF t
 abs_pres_matrix$genome2 <- sapply(strsplit(as.character(abs_pres_matrix$Genome),"_"), `[`, 1)
 abs_pres_matrix$genome3 <- sapply(strsplit(as.character(abs_pres_matrix$Genome),"_"), `[`, 2)
 abs_pres_matrix$genome4 <- sapply(strsplit(as.character(abs_pres_matrix$Genome),"_"), `[`, 3)
-abs_pres_matrix$BGC.Region <- sapply(strsplit(as.character(abs_pres_matrix$Genome),"_"), `[`, 4)
+abs_pres_matrix$BGC.Region <- sapply(strsplit(as.character(abs_pres_matrix$Genome),"_"), `[`, 4) #This is useless?
 
 #Merging Previous Columns
 abs_pres_matrix$Genome <- paste0(abs_pres_matrix$genome2, "_",

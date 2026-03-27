@@ -17,6 +17,8 @@ if not os.path.exists('intermediate_files/BiG-SCAPE'):
    os.makedirs('intermediate_files/BiG-SCAPE')     
 if not os.path.exists('databases/BiG-SCAPE'):
    os.makedirs('databases/BiG-SCAPE')     
+if not os.path.exists('databases/BAKTA'):
+   os.makedirs('databases/BAKTA')   
 
 
 #Download PFAM
@@ -27,7 +29,7 @@ os.system('hmmpress databases/PFAM/Pfam-A.hmm')
 
 #Download EGGNOG
 
-#os.system('download_eggnog_data.py -y --data_dir databases/mapper_data')
+#os.system('download_eggnog_data.py -y --data_dir databases/mapper_data') broken for now
 
 os.system('wget -P ./databases/mapper_data/ http://eggnog6.embl.de/download/emapperdb-5.0.2/eggnog.db.gz')
 
@@ -38,6 +40,10 @@ os.system('wget -P ./databases/mapper_data/ http://eggnog6.embl.de/download/emap
 os.system('gunzip ./databases/mapper_data/*.gz')
 
 os.system('tar -xvf ./databases/mapper_data/eggnog.taxa.tar -C ./databases/mapper_data/')
+
+#Download Bakta
+
+os.system ('conda run -n bacLIFE_environment_BAKTA bakta_db download --output ./databases/mapper_data/BAKTA --type full')
 
 #Download DBCAN
 

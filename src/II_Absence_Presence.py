@@ -26,7 +26,7 @@ df2.columns = ['BGC Name', 'GCF No', 'Organism', 'BGC Class']
 #DataFrame Manipulation
 df2['GCF No'] = df1['BGC Class'].astype(str) + 'GCF' + df2['GCF No'].astype(str)
 df1[['BGC','BGC2']] = df1['BGC Name'].str.split('_',n=1,expand=True)
-df2['Genome'] = df1['Organism'].astype(str) + df1['BGC Name'].astype(str)
+df2['Genome'] = df1['Organism'].astype(str) + '_' + df1['BGC Name'].astype(str) #fix here? old: df2['Genome'] = df1['Organism'].astype(str) + df1['BGC Name'].astype(str)
 df2.set_index('GCF No')
 df2 = df2[['GCF No','Genome']]
 df2['Genome'] = df2['Genome'].str.replace(' ', '_').str.replace('Unclassified','_').str.replace('__','_').str.replace('.','')
