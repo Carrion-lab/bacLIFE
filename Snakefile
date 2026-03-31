@@ -15,6 +15,7 @@ MCL_INFLATION = config['mcl_inflation_value']
 LINCLUST_IDENTITY = config['linclust_identity']
 MIBIG_VERSION = config['MIBiG_version']
 GCF_CUTOFF = config['GCF_cutoff']
+PHYLO_DIVERSITY = config['phylo_diversity']
 
 GENBANKFILES, = glob_wildcards("intermediate_files/annot/{genome}.gbff")
 NEWTAGFILE = "intermediate_files/combined_proteins/id2tags.tsv"
@@ -296,7 +297,7 @@ rule antismash:
         conda:
             "antismash_bacLIFE"
         shell:
-            'antismash --cpus {THREADS_antismash} --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --genefinding-tool prodigal --smcog-trees {input}'
+            'antismash --cpus {THREADS_antismash} --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --no-zip-output --genefinding-tool prodigal --smcog-trees {input}'
 
 
 
@@ -359,6 +360,7 @@ rule phylophlan:
     params:
         database = config['phylo_database'],
         in_file = "intermediate_files/phylophlan/input"
+        phylo_diversity = config['phylo_diversity']
     threads: THREADS
     message: 'Executing PhyloPhlAn to generate a phylogenetic tree.'
     output:
@@ -370,7 +372,7 @@ rule phylophlan:
         shell("mkdir -p intermediate_files/phylophlan/input/")
         shell("mkdir -p intermediate_files/phylophlan/output_phylophlan/")
         shell("cp -r intermediate_files/annot/*/*O.faa intermediate_files/phylophlan/input/")
-        shell("phylophlan -i {params.in_file} -d {params.database} --diversity low -f {input.config} --nproc {THREADS} --output_folder intermediate_files/phylophlan/output_phylophlan/ --databases_folder src/phylophlan_db")
+        shell("phylophlan -i {params.in_file} -d {params.database} --diversity {params.phylo_diversity} -f {input.config} --nproc {THREADS} --output_folder intermediate_files/phylophlan/output_phylophlan/ --databases_folder src/phylophlan_db")
         shell("mv intermediate_files/phylophlan/output_phylophlan/input_{params.database}/* intermediate_files/phylophlan/output_phylophlan/")
         shell("rm -r intermediate_files/phylophlan/output_phylophlan/input_{params.database}")
        

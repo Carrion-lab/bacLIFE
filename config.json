@@ -6,6 +6,7 @@
     "threads_antismash": 1,
     "MIBiG_version": 4.0,
     "GCF_cutoff": 0.7,
-    "phylo_database" : "amphora2"
+    "phylo_database" : "amphora2",
+    "phylo_diversity": "low"
 }
 
