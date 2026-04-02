@@ -162,6 +162,9 @@ rule clustering:
         #Extract gene lengths
         shell("bioawk -c fastx '{{ print $name, length($seq) }}' < intermediate_files/combined_proteins/combined_proteins.fasta >intermediate_files/combined_proteins/length_genes.txt")
         
+        #Remove old files if they exist
+        shell("rm -rf intermediate_files/clustering/")
+
         #Run mmseq2 clustering to 0.95
         shell('mmseqs createdb {input} {params.mmseq_db}')
         shell('mmseqs cluster {params.mmseq_db} {params.mmseq_db_clu} {params.mmseq_temp} --min-seq-id {params.mmseq_identity} --cov-mode 0 -c 0.8')
@@ -297,8 +300,10 @@ rule antismash:
         conda:
             "antismash_bacLIFE"
         shell:
-            'antismash --cpus {THREADS_antismash} --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --no-zip-output --genefinding-tool prodigal --smcog-trees {input}'
-
+            """
+            rm -rf {params.out_dir}
+            antismash --cpus {THREADS_antismash} --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --no-zip-output --genefinding-tool prodigal --smcog-trees {input}'
+            """
 
 
 rule bigscape_exe:
@@ -319,6 +324,7 @@ rule bigscape_exe:
             "bigscape_bacLIFE"
         shell:
             """
+            rm -rf intermediate_files/BiG-SCAPE/
             bigscape cluster -i {params.indir} -o {params.outdir} -p databases/PFAM/Pfam-A.hmm -m {params.mibig_version} --gcf-cutoffs {params.gcf_cutoff} --include-singletons --cores {params.threads} --mix
             """
             
@@ -368,6 +374,7 @@ rule phylophlan:
         #out_dir = "intermediate_files/phylophlan/output_phylophlan"
     log: "log/phylophlan.log"
     run:
+        shell("rm -rf intermediate_files/phylophlan/output_phylophlan/ intermediate_files/phylophlan/input/")
         shell("mkdir -p intermediate_files/phylophlan/")
         shell("mkdir -p intermediate_files/phylophlan/input/")
         shell("mkdir -p intermediate_files/phylophlan/output_phylophlan/")
@@ -376,12 +383,3 @@ rule phylophlan:
         shell("mv intermediate_files/phylophlan/output_phylophlan/input_{params.database}/* intermediate_files/phylophlan/output_phylophlan/")
         shell("rm -r intermediate_files/phylophlan/output_phylophlan/input_{params.database}")
        
-
-
-        
-        
-
-
-
-        
-        

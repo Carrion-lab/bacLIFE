@@ -1,8 +1,9 @@
 - Update DBCAN X 
 - Update PFAM X
-- Update/fix eggnog
+- Update/fix eggnog X
 - Update bigscape X
-- Prokka to BAKTA?
+- Prokka to BAKTA X
+- Add phylogeny
 
 
 (bacLIFE_environment) kevinb@nioo0003:~/bacLIFE_Big2$ python src/prepare_app_inputs.py

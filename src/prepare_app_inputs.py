@@ -16,3 +16,5 @@ os.system('mv intermediate_files/combined_proteins/combined_proteins.fasta Shiny
 os.system('mv intermediate_files/BiG-SCAPE/BGC_descriptions.txt Shiny_app/input/')
 
 os.system('mv intermediate_files/antismash Shiny_app/')
+
+#os.system('mv intermediate_files/phylophlan/rax Shiny_app/input/')
