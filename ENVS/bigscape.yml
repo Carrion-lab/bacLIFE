@@ -3,4 +3,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - bigscape=2.0.2
+  - bigscape=2.0.3
