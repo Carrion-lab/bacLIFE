@@ -2,6 +2,8 @@
 
 This utility links gene identifiers from a GenBank/GBFF file to bacLIFE cluster annotations and then merges the result with a bacLIFE LAGs table and a DEGs table.
 
+Run this script inside the bacLIFE_environment conda environment, since it depends on tools and Python packages available there.
+
 ## What it does
 
 The script:
@@ -29,43 +31,11 @@ The final merged output only keeps the overlap between:
 
 ## Important note about `--gbf-tag` and the DEGs table
 
-The first column in the DEGs table is expected to contain the gene identifier used for the join.
+The DEGs table is expected to contain the gene identifier used for the join in a column called `ID`.
 
-That identifier must match the qualifier selected with `--gbf-tag`.
+That identifier must match the qualifier selected with `--gbf-tag`, so you should inspect both the DEG table and the GBFF file to determine which CDS qualifier is the correct one.
 
-For example, if the first column in the DEGs file contains `locus_tag` values, run the script with:
+For example, if the `ID` column in the DEGs file contains `locus_tag` values, run the script with:
 
 ```bash
 --gbf-tag locus_tag
-```
-
-If the DEGs file instead uses `old_locus_tag` or `gene`, then `--gbf-tag` should be set to that same qualifier.
-
-## Usage
-
-```bash
-python gbf_to_baclife_lag_deg_mapper.py \
-  --baclife-LAGs plant_pathogen_LAGs.xlsx \
-  --megamatrix MEGAMATRIX_renamed.txt \
-  --combined-proteins combined_proteins.fasta \
-  --DEGs DEGs.csv \
-  --gbf genome.gbff \
-  --gbf-tag locus_tag \
-  --output results \
-  --threads 4
-```
-
-## Outputs
-
-The script writes:
-
-- `baclife_gene_cluster_mapping.tsv`: mapping between bacLIFE clusters, bacLIFE genes, and GBF gene names
-- `baclife_LAGs_DEGs_merged.tsv`: merged table with the overlap between mapping, LAGs, and DEGs
-
-## Suggested location in the repository
-
-```text
-src/gbf_to_baclife_lag_deg_mapper/
-├── README.md
-└── gbf_to_baclife_lag_deg_mapper.py
-```
