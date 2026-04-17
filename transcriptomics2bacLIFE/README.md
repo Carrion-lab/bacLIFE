@@ -37,6 +37,7 @@ For example, if the `ID` column in the DEGs file contains `locus_tag` values, ru
 
 ```bash
 --gbf-tag locus_tag
+```
 
 ## Usage
 
