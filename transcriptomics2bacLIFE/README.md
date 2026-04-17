@@ -2,8 +2,6 @@
 
 This utility links gene identifiers from a GenBank/GBFF file to bacLIFE cluster annotations and then merges the result with a bacLIFE LAGs table and a DEGs table.
 
-Run this script inside the bacLIFE_environment conda environment, since it depends on tools and Python packages available there.
-
 ## What it does
 
 The script:
@@ -39,3 +37,19 @@ For example, if the `ID` column in the DEGs file contains `locus_tag` values, ru
 
 ```bash
 --gbf-tag locus_tag
+
+## Usage
+
+Run this script inside the bacLIFE_environment conda environment, since it depends on tools and Python packages available there.
+
+```
+python gbf_to_baclife_lag_deg_mapper.py \
+  --baclife-LAGs path/to/plant_pathogen_LAGs.xlsx \
+  --megamatrix path/to/MEGAMATRIX_renamed.txt \
+  --combined-proteins path/to/combined_proteins.fasta \
+  --DEGs path/to/DEGs.csv \
+  --gbf path/to/genome.gbff \
+  --gbf-tag locus_tag \
+  --output path/to/results \
+  --threads 4
+```
