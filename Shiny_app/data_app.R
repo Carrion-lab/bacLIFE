@@ -83,6 +83,7 @@ bgc_descriptions = read_delim('input/BGC_descriptions.txt', col_names = T)
 
 ###
 mapping_file$Species <- sapply(strsplit(mapping_file$Sample,"_"), `[`, 2)
+mapping_file$Genus <- sapply(strsplit(mapping_file$Sample,"_"), `[`, 1)
 matrix = as.data.frame(matrix)
 n_samples <- grep("completeness", colnames(matrix)) - 1
 matrix[,2:n_samples] <- sapply(matrix[,2:n_samples],as.numeric)
