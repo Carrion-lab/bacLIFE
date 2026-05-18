@@ -325,7 +325,11 @@ rule bigscape_exe:
         shell:
             """
             rm -rf intermediate_files/BiG-SCAPE/
-            bigscape cluster -i {params.indir} -o {params.outdir} -p databases/PFAM/Pfam-A.hmm -m {params.mibig_version} --gcf-cutoffs {params.gcf_cutoff} --include-singletons --cores {params.threads} --mix
+            if [ "{params.mibig_version}" = "Skip" ]; then
+                bigscape cluster -i {params.indir} -o {params.outdir} -p databases/PFAM/Pfam-A.hmm --gcf-cutoffs {params.gcf_cutoff} --include-singletons --cores {params.threads} --mix
+            else
+                bigscape cluster -i {params.indir} -o {params.outdir} -p databases/PFAM/Pfam-A.hmm -m {params.mibig_version} --gcf-cutoffs {params.gcf_cutoff} --include-singletons --cores {params.threads} --mix
+            fi
             """
             
 rule extract_binary_table_GCF:
