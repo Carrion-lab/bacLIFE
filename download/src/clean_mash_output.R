@@ -1,11 +1,16 @@
 library(igraph)
 library(stringr)
 
+# Read command-line arguments
+args <- commandArgs(trailingOnly = TRUE)
+threshold <- if (length(args) > 0) as.numeric(args[1]) else 0.01
+
 ###remove redundant genomes:
 
 mash <- read.table('mash/combined_results_filtered', sep = '\t', header = F)
 mash <-  mash[mash$V1!=mash$V2,]
-mash <- mash[mash$V3 < 0.01,]
+mash <- mash[mash$V3 < threshold,]
+print(paste0('Number of pairs with distance < ', threshold, ': ', nrow(mash)))
 
 ig <- graph_from_data_frame(mash[,1:3], directed = F)
 cl <- components(ig)
