@@ -20,7 +20,7 @@ abs_pres_matrix <-abs_pres_matrix[, c(2,3)] #removal of first column
 #Modify GCF.No and Genome Columns
 abs_pres_matrix <- abs_pres_matrix[!grepl("BGC", abs_pres_matrix$Genome),]
 abs_pres_matrix$Genome<- gsub("BGC", "_BGC", abs_pres_matrix$Genome)
-abs_pres_matrix$GCF.No<- gsub("[a-zA-Z ]", "", abs_pres_matrix$GCF.No) #Removes BiG-SCAPE Class from GCF Column
+abs_pres_matrix$GCF.No<- gsub("[a-zA-Z .]", "", abs_pres_matrix$GCF.No) #Removes BiG-SCAPE Class from GCF Column
 abs_pres_matrix$GCF.No<- gsub("-_", "", abs_pres_matrix$GCF.No)
 abs_pres_matrix$GCF.No <- sub("^", "GCF", abs_pres_matrix$GCF.No) #Appends GCF to the Front of the Number
 
@@ -28,7 +28,7 @@ abs_pres_matrix$GCF.No <- sub("^", "GCF", abs_pres_matrix$GCF.No) #Appends GCF t
 abs_pres_matrix$genome2 <- sapply(strsplit(as.character(abs_pres_matrix$Genome),"_"), `[`, 1)
 abs_pres_matrix$genome3 <- sapply(strsplit(as.character(abs_pres_matrix$Genome),"_"), `[`, 2)
 abs_pres_matrix$genome4 <- sapply(strsplit(as.character(abs_pres_matrix$Genome),"_"), `[`, 3)
-abs_pres_matrix$BGC.Region <- sapply(strsplit(as.character(abs_pres_matrix$Genome),"_"), `[`, 4)
+abs_pres_matrix$BGC.Region <- sapply(strsplit(as.character(abs_pres_matrix$Genome),"_"), `[`, 4) #This is useless?
 
 #Merging Previous Columns
 abs_pres_matrix$Genome <- paste0(abs_pres_matrix$genome2, "_",

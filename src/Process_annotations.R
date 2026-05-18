@@ -15,7 +15,7 @@ args = commandArgs(trailingOnly=TRUE)
 ##arg[3] is the kegg annotatuion
 ##arg[4] is the hmm annotation
 ##arg[5] is the clusterVSid file
-##arg[6] is the prokka annotations
+##arg[6] is the bakta annotations
 ##arg[7] is the output name of matrix with all annotations
 
 
@@ -32,8 +32,8 @@ cog <- read.table(args[2], header = T)
 ####KEGG annotations
 kegg <- read.table(args[3], header = T)
 
-###Prokka annotations
-prokka <- read.table(args[5], header = T)
+###bakta annotations
+bakta <- read.table(args[5], header = T)
 
 'Merge annotations COG/KEGG'
 ###Merge annotations
@@ -44,9 +44,9 @@ all_annotations <- merge(kegg, cog, by= 'gene', all = T)
 hmm_annotations <- read.table(args[4], header = T)
 all_annotations <- merge(all_annotations, hmm_annotations, by= 'gene', all = T)
 
-'Merge with prokka annotation'
-##Merge with prokka
-all_annotations <- merge(all_annotations, prokka, by.x= 'gene', by.y = 'geneid', all = T)
+'Merge with bakta annotation'
+##Merge with bakta
+all_annotations <- merge(all_annotations, bakta, by.x= 'gene', by.y = 'geneid', all = T)
 
 
 

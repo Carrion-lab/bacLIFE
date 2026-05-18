@@ -2,8 +2,11 @@
     "threads" : 32,
     "mcl_inflation_value": 3.0,
     "linclust_identity": 0.95,
-    "threads_prokka": 2,
-    "threads_antismash": 2,
-    "phylo_database" : "amphora2"
+    "threads_bakta": 1,
+    "threads_antismash": 1,
+    "MIBiG_version": 4.0,
+    "GCF_cutoff": 0.7,
+    "phylo_database" : "amphora2",
+    "phylo_diversity": "low"
 }
 

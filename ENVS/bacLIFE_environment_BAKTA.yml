@@ -1,0 +1,8 @@
+name: bacLIFE_environment_BAKTA
+channels:
+    - conda-forge
+    - bioconda
+    - r
+    - defaults
+dependencies:
+    - bakta=1.12.0

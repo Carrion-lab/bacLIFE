@@ -3,13 +3,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - python=3.6
-  - dataclasses
-  - hmmer
-  - biopython=1.70
-  - fasttree
-  - networkx
-  - libgfortran=3
-  - numpy=1.19
-  - scipy=1.5
-  - scikit-learn=0.19.2
+  - bigscape=2.0.3

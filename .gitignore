@@ -1,0 +1,12 @@
+
+src/.Rhistory
+/bigscape2_paeni
+/network_files_paeni_bigscape1
+/intermediate_files
+annotation.txt
+GCF_annotation.txt
+names_equivalence.txt
+prokka_annotation.txt
+id2tags.tsv
+prokka_headers.txt
+combined_proteins.fasta.orig

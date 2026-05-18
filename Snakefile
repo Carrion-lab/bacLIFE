@@ -9,16 +9,19 @@ CLUSTERING_FASTA = 'intermediate_files/clustering/protein_cluster'
 
 configfile: "config.json"
 THREADS = config['threads']
-THREADS_prokka = config['threads_prokka']
+THREADS_bakta = config['threads_bakta']
 THREADS_antismash = config['threads_antismash']
 MCL_INFLATION = config['mcl_inflation_value']
 LINCLUST_IDENTITY = config['linclust_identity']
+MIBIG_VERSION = config['MIBiG_version']
+GCF_CUTOFF = config['GCF_cutoff']
+PHYLO_DIVERSITY = config['phylo_diversity']
 
-GENBANKFILES, = glob_wildcards("intermediate_files/annot/{genome}.gbk")
+GENBANKFILES, = glob_wildcards("intermediate_files/annot/{genome}.gbff")
 NEWTAGFILE = "intermediate_files/combined_proteins/id2tags.tsv"
 
 CLUSTERVSGENE = "intermediate_files/clusterVSgene.txt"
-PROKKA_ANNOTATION = "intermediate_files/prokka_annotation.txt"
+BAKTA_annotation = "intermediate_files/bakta_annotation.txt"
 PFAM_ANNOTATION = "intermediate_files/pfam_out/PFAM_annotation.txt"
 KEGG_ANNOTATION = "intermediate_files/kegg_annotation/KEGG_annotation_clean.faa.finalkegg"
 KEGG_ANNOTATION_CLEAN = "intermediate_files/kegg_annotation/KEGG_annotation_clean2.faa.finalkegg"
@@ -35,13 +38,13 @@ BIGSCAPE = "intermediate_files/BiG-SCAPE/bigscape_output/index.html"
 
 rule final:
         input:
-            prokka = expand('intermediate_files/annot/{species}_{str}_{replicon}/{genus}_{species}_{str}_{replicon}.gbk', zip, genus = GENUS, species = SPECIES, str = STR, replicon = REPLICON),
+            bakta = expand('intermediate_files/annot/{species}_{str}_{replicon}/{genus}_{species}_{str}_{replicon}.gbff', zip, genus = GENUS, species = SPECIES, str = STR, replicon = REPLICON),
             extprot = expand('intermediate_files/annot/{species}_{str}_{replicon}/{genus}_{species}_{str}_{replicon}.ext_prot.faa', zip, genus = GENUS, species = SPECIES, str = STR, replicon = REPLICON),
             protein_combine = 'intermediate_files/combined_proteins/combined_proteins.fasta.orig',
             protein_rename = COMBINED_PROTEINS,
             clustering_matrix = CLUSTERING_BINARY_TABLE,
             clustering_fasta = CLUSTERING_FASTA,
-            extract_prokka = PROKKA_ANNOTATION,
+            extract_bakta = BAKTA_annotation,
             pfam_annotation = PFAM_ANNOTATION,
             kegg_clean_annotation = KEGG_ANNOTATION,
             cog_clean_annotation = COG_ANNOTATION,
@@ -49,7 +52,6 @@ rule final:
             hmm_annotations = HMM_ANNOTATIONS,
             megamatrix = MEGAMATRIX,
             antismash = expand('intermediate_files/antismash/{genus}_{species}_{str}_{replicon}/{genus}_{species}_{str}_{replicon}.gbk', zip, genus = GENUS, species = SPECIES, str = STR, replicon = REPLICON),
-            bigscape_setup = "databases/BiG-SCAPE/bigscape.py",
             bigscape = BIGSCAPE,
             binary_table_GCF = 'intermediate_files/BiG-SCAPE/big_scape_binary_table.txt',
             rename_matrix = 'MEGAMATRIX_renamed.txt',
@@ -68,32 +70,35 @@ rule directories:
             shell("mkdir -p {params}")
             shell("touch .mkdir.chkpnt")
 
-rule Prokka_annotation:
+rule BAKTA_annotation:
         input:
             file = "data/{genus}_{species}_{str}_{replicon}.fna",
             dir = rules.directories.output
         output:
-            prokka = 'intermediate_files/annot/{species}_{str}_{replicon}/{genus}_{species}_{str}_{replicon}.gbk',
-            prokka2 = 'intermediate_files/annot/{species}_{str}_{replicon}/{genus}_{species}_{str}_{replicon}.faa'
-        message: 'executing prokka.'
+            bakta = 'intermediate_files/annot/{species}_{str}_{replicon}/{genus}_{species}_{str}_{replicon}.gbff',
+            bakta2 = 'intermediate_files/annot/{species}_{str}_{replicon}/{genus}_{species}_{str}_{replicon}.faa'
+        conda:
+            "bacLIFE_environment_BAKTA"
+        message: 'executing bakta.'
         params:
             genus = "{genus}",
             species = "{species}",
             str = "{str}",
             outdir = "intermediate_files/annot/{species}_{str}_{replicon}",
             prefix = "{genus}_{species}_{str}_{replicon}"
-        threads: THREADS_prokka
+        threads: THREADS_bakta
         priority: 100
         run:
-                shell('prokka --force --outdir {params.outdir} --prefix {params.prefix} --locustag {params.str} --addgenes --increment 5 --centre bacLIFE --genus {params.genus} --species {params.species} --str {params.str} --gcode 11 --cpus {THREADS_prokka} --evalue 1e-03 --rfam {input.file}')
+            shell('bakta --force --output {params.outdir} --prefix {params.prefix} --locus-tag {params.str} --locus-tag-increment 5 --genus {params.genus} --species {params.species} --str {params.str} --threads {THREADS_bakta} --db ./databases/BAKTA/db --skip-plot {input.file}')
 
 rule extract_proteins:
-    input: rules.Prokka_annotation.output.prokka
+    input: rules.BAKTA_annotation.output.bakta
     output:
         faa = 'intermediate_files/annot/{species}_{str}_{replicon}/{genus}_{species}_{str}_{replicon}.ext_prot.faa',
         tags = 'intermediate_files/annot/{species}_{str}_{replicon}/{genus}_{species}_{str}_{replicon}.ext_prot.faa.tags'
     #log: 'log/{genus}_{species}_{str}_{replicon}_extract_proteins.log'
     #benchmark: 'benchmarks/{genus}_{species}_{str}_{replicon}_extract_proteins.json'
+    threads: 1
     message: 'Executing genbank_to_protein_fasta on the following files {input}.'
     shell:
         'python ./src/genbank_to_protein_fasta.py --genbank {input} --fasta {output.faa}'
@@ -107,6 +112,8 @@ rule protein_combine:
     output:
         orig = "%s.orig"%COMBINED_PROTEINS,
         tags = "%s.tags"%COMBINED_PROTEINS
+    threads: 1
+    message: 'Combining protein fasta files and tag files.'
     log: 'log/protein_combine.log'
     run:
         shell('cat {input.faa} >  {output.orig}')
@@ -116,6 +123,8 @@ rule protein_rename:
     input:
         orig = rules.protein_combine.output.orig,
         tags = rules.protein_combine.output.tags
+    threads: 1
+    message: 'Renaming protein files.'
     output: 
         combined_proteins = COMBINED_PROTEINS,
         newtagfile = NEWTAGFILE
@@ -146,12 +155,16 @@ rule clustering:
         mcl_data = 'intermediate_files/clustering/mcl_data.mci',
         mcl_tab = 'intermediate_files/clustering/mcl_tab.tab',
         mcl_infaltion = MCL_INFLATION,
-        mcl_clusters= 'intermediate_files/clustering/out.mcl_data.mci',
-        
+        mcl_clusters= 'intermediate_files/clustering/out.mcl_data.mci'
+    threads: THREADS      
+    message: 'Executing clustering of proteins with mmseq2, diamond and mcl.'
     run:
         #Extract gene lengths
         shell("bioawk -c fastx '{{ print $name, length($seq) }}' < intermediate_files/combined_proteins/combined_proteins.fasta >intermediate_files/combined_proteins/length_genes.txt")
         
+        #Remove old files if they exist
+        shell("rm -rf intermediate_files/clustering/")
+
         #Run mmseq2 clustering to 0.95
         shell('mmseqs createdb {input} {params.mmseq_db}')
         shell('mmseqs cluster {params.mmseq_db} {params.mmseq_db_clu} {params.mmseq_temp} --min-seq-id {params.mmseq_identity} --cov-mode 0 -c 0.8')
@@ -182,28 +195,26 @@ rule clustering:
 
 
 
-
-rule extract_prokka:
+rule extract_bakta:
     input:
         id2tag = rules.protein_rename.output.newtagfile,
         faa = rules.protein_combine.output.orig
     params:
-        headers = 'intermediate_files/prokka_headers.txt'
+        headers = 'intermediate_files/bakta_headers.txt'
     output:
-        "intermediate_files/prokka_annotation.txt"
+        "intermediate_files/bakta_annotation.txt"
+    threads: 1
+    message: 'Extracting bakta annotations.'
     run:
         shell("grep '^>' {input.faa} >  {params.headers}")
-        shell("Rscript ./src/extract_prokka.R {input.id2tag} {params.headers} {output} ")
-
-
-
+        shell("Rscript ./src/extract_bakta.R {input.id2tag} {params.headers} {output} ")
 
 rule pfam:
     input:
             rules.clustering.output.fasta
     output:
             pfam = PFAM_ANNOTATION
-            
+    threads: 1        
     message: 'executing pfam.'
     run:
         shell('hmmsearch --tblout {output.pfam} --cpu {THREADS} -E 1e-5 ./databases/PFAM/Pfam-A.hmm {input}')
@@ -215,6 +226,8 @@ rule EGGNOG:
         data = EGGNOG_DATA
     output:
         EGGNOG_ANNOTATION
+    threads: THREADS
+    message: 'executing eggnog-mapper.'
     run:
         shell('emapper.py -i {input} --cpu {THREADS} -o intermediate_files/eggnog_annotation/eggnog_annotation --data_dir {params.data} --pident 30 --query_cover 50 --subject_cover 50 --report_orthologs')
 
@@ -238,11 +251,12 @@ rule KEGG_COG:
 rule dbCAN:
         input:
             rules.clustering.output.fasta
+        threads: THREADS
         message: 'Retrieving dbCAN annotations.'
         output:
                 dbcan = DBCAN_ANNOTATION
         run:
-            shell('hmmsearch --tblout {output} -E 1e-5 --cpu {THREADS} ./databases/DBCAN/dbCAN-HMMdb-V9.txt {input}')
+            shell('hmmsearch --tblout {output} -E 1e-5 --cpu {THREADS} ./databases/DBCAN/dbCAN-HMMdb-V14.txt {input}')
 
 rule process_hmm_annotations:
     input:
@@ -252,6 +266,8 @@ rule process_hmm_annotations:
         dbcan_family = "./src/CAZyDB.07302020.fam-activities.txt",
         pfam_family = "./src/Pfam-A.clans.tsv"
     output: HMM_ANNOTATIONS
+    threads: 1
+    message: 'Processing HMM annotations.'
     run:
         shell("Rscript ./src/Process_hmm_annotation.R {input.dbcan} {input.pfam} {params.dbcan_family} {params.pfam_family} {output}")
 
@@ -262,17 +278,19 @@ rule process_annotations:
         cog = rules.KEGG_COG.output.cog,
         kegg = rules.KEGG_COG.output.kegg_clean,
         hmm_annotation = rules.process_hmm_annotations.output,
-        prokka = rules.extract_prokka.output
+        bakta = rules.extract_bakta.output
+    threads: 1
+    message: 'Processing annotations and generating MEGAMATRIX.'    
     output:
         MEGAMATRIX
     run:
-        shell("set -euo pipefail; Rscript ./src/Process_annotations.R {input.matrix} {input.cog} {input.kegg} {input.hmm_annotation} {input.prokka} {output}")
+        shell("set -euo pipefail; Rscript ./src/Process_annotations.R {input.matrix} {input.cog} {input.kegg} {input.hmm_annotation} {input.bakta} {output}")
 
 
 
 rule antismash:
         input:
-                rules.Prokka_annotation.output.prokka
+                rules.BAKTA_annotation.output.bakta
         output:
                 "intermediate_files/antismash/{genus}_{species}_{str}_{replicon}/{genus}_{species}_{str}_{replicon}.gbk"
         params:
@@ -282,8 +300,10 @@ rule antismash:
         conda:
             "antismash_bacLIFE"
         shell:
-            'antismash --cpus {THREADS_antismash} --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --genefinding-tool prodigal --smcog-trees {input}'
-
+            """
+            rm -rf {params.out_dir}
+            antismash --cpus {THREADS_antismash} --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --no-zip-output --genefinding-tool prodigal --smcog-trees {input}'
+            """
 
 
 rule bigscape_exe:
@@ -292,41 +312,40 @@ rule bigscape_exe:
             pfam_hmm = 'databases/PFAM/Pfam-A.hmm'
         output:
             html = 'intermediate_files/BiG-SCAPE/bigscape_output/index.html',
-            clustering = 'intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal/mix/mix_clustering_c0.70.tsv',
-            network = 'intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal/mix/mix_c0.70.network',
-            annotations = 'intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal/Network_Annotations_Full.tsv'
+            db = 'intermediate_files/BiG-SCAPE/bigscape_output/bigscape_output.db'
         threads: THREADS
         params:
             outdir = 'intermediate_files/BiG-SCAPE/bigscape_output/',
+            mibig_version = MIBIG_VERSION,
+            gcf_cutoff = GCF_CUTOFF,
             threads = THREADS,
             indir = rules.directories.params.antismash
         conda:
             "bigscape_bacLIFE"
         shell:
-            "python ./databases/BiG-SCAPE/bigscape.py -i {params.indir} -o {params.outdir} --pfam_dir databases/PFAM/ --mode glocal --mibig --cutoffs 0.3 0.7 --include_singletons --cores {params.threads} --mix; rm -r intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal; mv intermediate_files/BiG-SCAPE/bigscape_output/network_files/*hybrids_glocal intermediate_files/BiG-SCAPE/bigscape_output/network_files/hybrids_glocal"
-
+            """
+            rm -rf intermediate_files/BiG-SCAPE/
+            if [ "{params.mibig_version}" = "Skip" ]; then
+                bigscape cluster -i {params.indir} -o {params.outdir} -p databases/PFAM/Pfam-A.hmm --gcf-cutoffs {params.gcf_cutoff} --include-singletons --cores {params.threads} --mix
+            else
+                bigscape cluster -i {params.indir} -o {params.outdir} -p databases/PFAM/Pfam-A.hmm -m {params.mibig_version} --gcf-cutoffs {params.gcf_cutoff} --include-singletons --cores {params.threads} --mix
+            fi
+            """
+            
 rule extract_binary_table_GCF:
     input:
-        clustering = rules.bigscape_exe.output.clustering,
-        network = rules.bigscape_exe.output.network,
-        annotations = rules.bigscape_exe.output.annotations
-    params:
-        output_code_I_network = "intermediate_files/BiG-SCAPE/mix_filtered.network",
-        output_code_I_annotations = 'intermediate_files/BiG-SCAPE/GCF_annotation.txt',
-        output_code_II = 'intermediate_files/BiG-SCAPE/abs_pres_table.csv',
-        names = 'names_equivalence.txt'
+        db = rules.bigscape_exe.output.db
     output:
-        filtered_network = "intermediate_files/BiG-SCAPE/mix_filtered.network",
         annotations = 'intermediate_files/BiG-SCAPE/annotation.txt',
         merged_annotations = 'intermediate_files/BiG-SCAPE/GCF_annotation.txt',
         abs_presence_list = 'intermediate_files/BiG-SCAPE/abs_pres_table.csv',
         binary_matrix = 'intermediate_files/BiG-SCAPE/big_scape_binary_table.txt'
+    threads: 1
+    message: 'Extracting GCF annotations and generating absence/presence table.'
     run:
-        shell("Rscript src/I-BIGSCAPE_revision.R {input.clustering} {input.network} {input.annotations} intermediate_files/BiG-SCAPE/mix_filtered.network intermediate_files/BiG-SCAPE/GCF_annotation.txt {output.annotations} {params.names}")
+        shell("Rscript src/I-bigscape_query.R")
         shell("python src/II_Absence_Presence.py intermediate_files/BiG-SCAPE/GCF_annotation.txt intermediate_files/BiG-SCAPE/abs_pres_table.csv ")
         shell("Rscript src/III_Absence_Presence_GCF.R intermediate_files/BiG-SCAPE/abs_pres_table.csv {output.binary_matrix}")
-
-
 
 rule rename_MEGAMATRIX:
     input:
@@ -338,10 +357,11 @@ rule rename_MEGAMATRIX:
         mapping_file = 'mapping_file.txt'
     params:
         'names_equivalence.txt'
+    threads: 1
+    message: 'Renaming MEGAMATRIX and binary table with gene names and GCF    
     run:
         shell('Rscript src/rename_MEGAMATRIX.R {input.genes} {input.BGCs} {params} {output.genes} {output.BGCs} {output.mapping_file}')
         
-
 
 rule phylophlan:
     input:
@@ -350,25 +370,20 @@ rule phylophlan:
     params:
         database = config['phylo_database'],
         in_file = "intermediate_files/phylophlan/input"
+        phylo_diversity = config['phylo_diversity']
+    threads: THREADS
+    message: 'Executing PhyloPhlAn to generate a phylogenetic tree.'
     output:
         out_tree = "intermediate_files/phylophlan/output_phylophlan/RAxML_bestTree.input_refined.tre",
         #out_dir = "intermediate_files/phylophlan/output_phylophlan"
     log: "log/phylophlan.log"
     run:
+        shell("rm -rf intermediate_files/phylophlan/output_phylophlan/ intermediate_files/phylophlan/input/")
         shell("mkdir -p intermediate_files/phylophlan/")
         shell("mkdir -p intermediate_files/phylophlan/input/")
         shell("mkdir -p intermediate_files/phylophlan/output_phylophlan/")
         shell("cp -r intermediate_files/annot/*/*O.faa intermediate_files/phylophlan/input/")
-        shell("phylophlan -i {params.in_file} -d {params.database} --diversity low -f {input.config} --nproc {THREADS} --output_folder intermediate_files/phylophlan/output_phylophlan/ --databases_folder src/phylophlan_db")
+        shell("phylophlan -i {params.in_file} -d {params.database} --diversity {params.phylo_diversity} -f {input.config} --nproc {THREADS} --output_folder intermediate_files/phylophlan/output_phylophlan/ --databases_folder src/phylophlan_db")
         shell("mv intermediate_files/phylophlan/output_phylophlan/input_{params.database}/* intermediate_files/phylophlan/output_phylophlan/")
         shell("rm -r intermediate_files/phylophlan/output_phylophlan/input_{params.database}")
        
-
-
-        
-        
-
-
-
-        
-        

@@ -7,16 +7,13 @@ channels:
 dependencies:
     - bioconductor-genomeinfodbdata=1.2.7
     - blast
-    - phylophlan
     - snakemake
     - scipy
     - biopython
     - diamond
-    - prokka=1.14.6
     - bioawk
     - perl-bioperl
     - mmseqs2
-    - tbl2asn
     - hmmer==3.1b2
     - mcl
     - bioconductor-biostrings
@@ -33,6 +30,8 @@ dependencies:
     - r-gtools
     - r-data.table
     - r-randomforest
+    - r-dbi
+    - r-rsqlite
     - phylophlan
     - eggnog-mapper
     - scikit-learn

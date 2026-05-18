@@ -39,7 +39,8 @@ source('data_app.R')
 ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                  tabPanel('INTRODUCTION',
                           sidebarLayout(position = 'left',
-                                        sidebarPanel(width = 3,p('Authors: Guillermo Guerrero & Victor Carrion'),
+                                        sidebarPanel(width = 3,p('Authors: Guillermo Guerrero, Kevin Bretscher & Victor Carrion'),
+                                                     p('Version: 1.2.0, GitHub: https://github.com/CarrionLab/bacLIFE'),
                                                      p('Instituto de Hortofruticultura Subtropical y Mediterránea (IHSM)'),
                                                      p('Universidad de Malaga (UMA)'),
                                                      p('Institute of Biology Leiden (IBL)'),
@@ -70,7 +71,7 @@ ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                                                   p(style="text-align: justify",downloadfasta),
                                                   
                                                   
-                                                  p(style="text-align: justify","bacLIFE was created by the CarrionLab of the Institute of Biology Leiden's  (IBL) plant-microbiome interaction department."),
+                                                  p(style="text-align: justify","bacLIFE was created by the CarrionLab of the Institute of Biology Leiden's (IBL) plant-microbiome interaction department."),
                                                   headerPanel(""),
                                                   headerPanel(""),
                                                   
@@ -90,8 +91,11 @@ ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                                      h1(tags$b("Gene clusters")),
                                      sidebarLayout(position = 'left',
                                                    sidebarPanel(width = 3,'Input parameters',
-                                                                selectInput('PCA_database', label = "Database:", choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'PROKKA', 'DBCAN')),
-                                                                selectInput("PCA_color", label = "Color:", choices = mapping_options_PCA)
+                                                                selectInput('PCA_database', label = "Database:", choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'BAKTA', 'DBCAN')),
+                                                                selectInput("PCA_color", label = "Color:", choices = mapping_options_PCA),
+                                                                checkboxInput("custom_colors", "Custom PCA Colors", value = FALSE),
+                                                                uiOutput("custom_color_inputs"),
+                                                                actionButton("refresh_pca", "Refresh PCA")
                                                    ),
                                                    mainPanel(width = 7,
                                                              tabsetPanel(
@@ -125,7 +129,10 @@ ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                                      h1(tags$b("Biosynthetic gene clusters")),
                                      sidebarLayout(position = 'left',
                                                    sidebarPanel(width = 3,'Input parameters',
-                                                                selectInput("PCA_color_BGC", label = "Color:", choices = mapping_options_PCA)
+                                                                selectInput("PCA_color_BGC", label = "Color:", choices = mapping_options_PCA),
+                                                                checkboxInput("custom_colors_bgc", "Use Custom Colors", value = FALSE),
+                                                                uiOutput("custom_color_inputs_bgc"),
+                                                                actionButton("refresh_pca_bgc", "Refresh PCA")
                                                    ),
                                                    mainPanel(width = 7,
                                                              tabsetPanel(
@@ -134,8 +141,6 @@ ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                                                                         
                                                                         tags$label(h3(tags$b('PCoA plot'))),
                                                                         plotlyOutput(outputId = "PCAplotBGC",width = '800px',height = '500px')),
-                                                               br(),
-                                                               br(),
                                                                tabPanel('BGCs heatmap',
                                                                         tags$label(h3(tags$b('Heatmap Gene Cluster Families'))),
                                                                         selectInput('bgcheatmap_column', label = 'Side Column color:', choices = mapping_options),
@@ -183,7 +188,7 @@ ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                                      h1(tags$b("Gene clusters")),
                                      sidebarLayout(position = 'left',
                                                    sidebarPanel(width = 3,'Input parameters',
-                                                                selectInput('clusterclass', label = 'Upset plot data:', choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'PROKKA', 'DBCAN', 'GCF')),
+                                                                selectInput('clusterclass', label = 'Upset plot data:', choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'BAKTA', 'DBCAN', 'GCF')),
                                                                 sliderInput('knumber', label = 'Number of clusters KNN:', min = 1, max = 15, value = 2),
                                                                 sliderInput('hdbscannumber', label = 'Minimum points/cluster HDBSCAN:', min = 2, max = 100, value = 2),
                                                                 sliderInput('dendonumber', label = 'Number of groups to cut dendrogram:', min = 2, max = 15, value = 2)
@@ -282,7 +287,7 @@ ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                                      h1(tags$b("Core-Genome")),
                                      sidebarLayout(position = 'left',
                                                    sidebarPanel(width = 3,'Input parameters',
-                                                                selectInput('upsetclass', label = 'Upset plot data:', choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'PROKKA', 'DBCAN', 'GCF')),
+                                                                selectInput('upsetclass', label = 'Upset plot data:', choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'BAKTA', 'DBCAN', 'GCF')),
                                                                 selectInput('upsetcolumn', label = 'Upset plot group:', choices = mapping_options),
                                                                 #selectInput('coreprocess', label = 'Select COG process:', choices = cog_process_options)
                                                    ),
@@ -360,7 +365,7 @@ ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                           h1(tags$b("Statistics")),
                           sidebarLayout(position = 'left',
                                         sidebarPanel(width = 3,
-                                                     selectInput('data_for_stats', label = "Select data to make statistics:", choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'PROKKA', 'DBCAN', 'GCF')),
+                                                     selectInput('data_for_stats', label = "Select data to make statistics:", choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'BAKTA', 'DBCAN', 'GCF')),
                                                      selectInput('column_for_stats', label = "Select column to make statistics:", choices = mapping_options),
                                                      uiOutput('inputs1'),
                                                      uiOutput('inputs2'),
@@ -419,7 +424,7 @@ ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                           sidebarLayout(position = 'left',
                                         sidebarPanel(width = 3,
                                                      selectInput('data_for_msa', label = "Select bacteria:", choices = as.list(c('All', unique(mapping_file$Sample) ))),
-                                                     selectInput('msacolumn', label = 'Select database', choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'PROKKA', 'DBCAN')),
+                                                     selectInput('msacolumn', label = 'Select database', choices = list('MCL', 'KEGG', 'COG', 'PFAM', 'BAKTA', 'DBCAN')),
                                                      textInput('msaid', 'Select cluster: ', value = ''),
                                                      #actionButton("gomsa", "Get fasta"),
                                                      downloadButton("downloadFASTA", "Download")
@@ -457,6 +462,62 @@ ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
 server <- function(input, output){
   
   options(shiny.maxRequestSize=20*1024^2)
+  
+  unique_vals <- reactive({ unique(mapping_file[[input$PCA_color]]) })
+  
+  output$custom_color_inputs <- renderUI({
+    if(input$custom_colors){
+      lapply(unique_vals(), function(val){
+        textInput(inputId = paste0("color_", val), label = val, value = "#000000")
+      })
+    }
+  })
+  
+  trigger <- reactiveVal(0)
+  observeEvent(input$refresh_pca, { trigger(trigger() + 1) })
+  
+  pca_colors <- reactive({
+    if(!input$custom_colors){
+      unique_vals <- unique_vals()
+      n <- length(unique_vals)
+      colors <- glasbey(n)
+      colors <- setNames(colors, unique_vals)
+    } else {
+      trigger()
+      unique_vals <- unique_vals()
+      colors <- sapply(unique_vals, function(val) input[[paste0("color_", val)]])
+      colors <- setNames(colors, unique_vals)
+    }
+    colors
+  })
+  
+  unique_vals_bgc <- reactive({ unique(mapping_file[[input$PCA_color_BGC]]) })
+  
+  output$custom_color_inputs_bgc <- renderUI({
+    if(input$custom_colors_bgc){
+      lapply(unique_vals_bgc(), function(val){
+        textInput(inputId = paste0("color_bgc_", val), label = val, value = "#000000")
+      })
+    }
+  })
+  
+  trigger_bgc <- reactiveVal(0)
+  observeEvent(input$refresh_pca_bgc, { trigger_bgc(trigger_bgc() + 1) })
+  
+  pca_colors_bgc <- reactive({
+    if(!input$custom_colors_bgc){
+      unique_vals <- unique_vals_bgc()
+      n <- length(unique_vals)
+      colors <- glasbey(n)
+      colors <- setNames(colors, unique_vals)
+    } else {
+      trigger_bgc()
+      unique_vals <- unique_vals_bgc()
+      colors <- sapply(unique_vals, function(val) input[[paste0("color_bgc_", val)]])
+      colors <- setNames(colors, unique_vals)
+    }
+    colors
+  })
   
   
   output$image1 <- renderImage({
@@ -498,8 +559,8 @@ server <- function(input, output){
     if (data == 'PFAM'){
       plot <- general_upset_plot(pfam_agg_matrix, mapping_file, 'pfam', group)
     }
-    if (data == 'PROKKA'){
-      plot <- general_upset_plot(prokka_agg_matrix, mapping_file, 'prokka', group)
+    if (data == 'BAKTA'){
+      plot <- general_upset_plot(bakta_agg_matrix, mapping_file, 'bakta', group)
     }
     if (data == 'DBCAN'){
       plot <- general_upset_plot(dbcan_agg_matrix, mapping_file, 'dbcan', group)
@@ -607,9 +668,9 @@ server <- function(input, output){
       plot_pca <-pfam_pca
       eig <- pfam_eig
     }
-    if (data == 'PROKKA'){
-      plot_pca <-prokka_pca
-      eig <- prokka_eig
+    if (data == 'BAKTA'){
+      plot_pca <-bakta_pca
+      eig <- bakta_eig
     }
     if (data == 'DBCAN'){
       plot_pca <-dbcan_pca
@@ -637,8 +698,8 @@ server <- function(input, output){
     if (data == 'PFAM'){
       dend <- pfam_dend
     }
-    if (data == 'PROKKA'){
-      dend <- prokka_dend
+    if (data == 'BAKTA'){
+      dend <- bakta_dend
     }
     if (data == 'DBCAN'){
       dend <- dbcan_dend
@@ -655,8 +716,9 @@ server <- function(input, output){
     eig <- GCF_eig
     input_list <- list(plot_pca, eig )
     color_column <- input$PCA_color_BGC
+    colors <- pca_colors_bgc()
     plot <- ggplot(input_list[[1]], aes_string(x = 'X', y = 'Y', color = color_column, label= 'Sample'))  + xlab(paste0('PC1 - ', round(input_list[[2]][1],2), '%', sep='')) + 
-      ylab(paste0('PC2 - ', round(input_list[[2]][2],2), '%', sep='')) + geom_point(aes_string(color = color_column)) + theme_bw() +  scale_color_manual(values = as.character(glasbey(n = nrow(input_list[[1]]))))
+      ylab(paste0('PC2 - ', round(input_list[[2]][2],2), '%', sep='')) + geom_point(aes_string(color = color_column)) + theme_bw() +  scale_color_manual(values = colors)
     ggplotly(plot)
     
   })
@@ -668,8 +730,10 @@ server <- function(input, output){
     
     m <- highlight_key(input_list[[1]])
     
+    colors <- pca_colors()
+    
     plot <- ggplot(m, aes_string(x = 'X', y = 'Y', color = color_column, label= 'Sample'))  + xlab(paste0('PC1 - ', round(input_list[[2]][1],2), '%', sep='')) + 
-      ylab(paste0('PC2 - ', round(input_list[[2]][2],2), '%', sep='')) + geom_point(aes_string(color = color_column)) + theme_bw() +  scale_color_manual(values = as.character(glasbey(n = nrow(input_list[[1]]))))
+      ylab(paste0('PC2 - ', round(input_list[[2]][2],2), '%', sep='')) + geom_point(aes_string(color = color_column)) + theme_bw() +  scale_color_manual(values = colors)
     gg <- highlight(ggplotly(plot, height = 500), 'plotly_selected')
     p <- crosstalk::bscols(gg, DT::datatable(m), widths = 10,  device = 'lg')
     p
@@ -735,8 +799,8 @@ server <- function(input, output){
     if (data == 'PFAM'){
       plot_pca <-pfam_pca
     }
-    if (data == 'PROKKA'){
-      plot_pca <-prokka_pca
+    if (data == 'BAKTA'){
+      plot_pca <-bakta_pca
     }
     if (data == 'DBCAN'){
       plot_pca <-dbcan_pca
@@ -762,8 +826,8 @@ server <- function(input, output){
     if (data == 'PFAM'){
       dend <- pfam_dend
     }
-    if (data == 'PROKKA'){
-      dend <- prokka_dend
+    if (data == 'BAKTA'){
+      dend <- bakta_dend
     }
     if (data == 'DBCAN'){
       dend <- dbcan_dend
@@ -953,7 +1017,7 @@ server <- function(input, output){
   output$uniquegenestable <-  DT::renderDataTable(server=F,{
     bacteria = vals_uniquegenestable()
     subset_matrix = singletons[,c('clusters', bacteria, 'keggid', 'kegg_description', "cogid", "cog_description", "pfamid",
-                                  "pfam_description", "dbcanid", "dbcan_description", "prokkadescription")]
+                                  "pfam_description", "dbcanid", "dbcan_description", "baktadescription")]
     
     subset_matrix = subset_matrix %>% filter(across(2) > 0)
     substet2print =  DT::datatable(
@@ -1171,7 +1235,7 @@ server <- function(input, output){
   output$cluster_hit <- DT::renderDataTable(server=F,{
     hit = input$cluster2distribution
     cluster_hit = matrix[matrix$clusters %in% hit,]
-    cluster_hit = cluster_hit[,c('clusters', 'keggid', 'kegg_description', 'cogid', 'cog_description', 'pfamid', 'pfam_description', 'dbcanid', 'dbcan_description', 'prokkadescription')]
+    cluster_hit = cluster_hit[,c('clusters', 'keggid', 'kegg_description', 'cogid', 'cog_description', 'pfamid', 'pfam_description', 'dbcanid', 'dbcan_description', 'baktadescription')]
     
     cluster_hit <- DT::datatable(
       cluster_hit,
