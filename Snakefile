@@ -89,7 +89,7 @@ rule BAKTA_annotation:
         threads: THREADS_bakta
         priority: 100
         run:
-            shell('bakta --force --output {params.outdir} --prefix {params.prefix} --locus-tag {params.str} --locus-tag-increment 5 --genus {params.genus} --species {params.species} --str {params.str} --threads {THREADS_bakta} --db ./databases/BAKTA/db --skip-plot {input.file}')
+            shell('bakta --force --output {params.outdir} --prefix {params.prefix} --locus-tag {params.str} --locus-tag-increment 5 --genus {params.genus} --species {params.species} --str {params.str} --threads {THREADS_bakta} --db ./databases/BAKTA/db --skip-plot --skip-sorf {input.file}')
 
 rule extract_proteins:
     input: rules.BAKTA_annotation.output.bakta
@@ -164,6 +164,7 @@ rule clustering:
         
         #Remove old files if they exist
         shell("rm -rf intermediate_files/clustering/")
+        shell("mkdir -p intermediate_files/clustering/")
 
         #Run mmseq2 clustering to 0.95
         shell('mmseqs createdb {input} {params.mmseq_db}')
@@ -302,7 +303,7 @@ rule antismash:
         shell:
             """
             rm -rf {params.out_dir}
-            antismash --cpus {THREADS_antismash} --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --no-zip-output --genefinding-tool prodigal --smcog-trees {input}'
+            antismash --cpus {THREADS_antismash} --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --no-zip-output --genefinding-tool prodigal --smcog-trees {input}
             """
 
 
@@ -325,6 +326,7 @@ rule bigscape_exe:
         shell:
             """
             rm -rf intermediate_files/BiG-SCAPE/
+            mkdir -p intermediate_files/BiG-SCAPE/bigscape_output/
             if [ "{params.mibig_version}" = "Skip" ]; then
                 bigscape cluster -i {params.indir} -o {params.outdir} -p databases/PFAM/Pfam-A.hmm --gcf-cutoffs {params.gcf_cutoff} --include-singletons --cores {params.threads} --mix
             else
@@ -358,7 +360,7 @@ rule rename_MEGAMATRIX:
     params:
         'names_equivalence.txt'
     threads: 1
-    message: 'Renaming MEGAMATRIX and binary table with gene names and GCF    
+    message: 'Renaming MEGAMATRIX and binary table with gene names and GCF.'
     run:
         shell('Rscript src/rename_MEGAMATRIX.R {input.genes} {input.BGCs} {params} {output.genes} {output.BGCs} {output.mapping_file}')
         
@@ -369,7 +371,7 @@ rule phylophlan:
         to_order= rules.extract_binary_table_GCF.output.binary_matrix
     params:
         database = config['phylo_database'],
-        in_file = "intermediate_files/phylophlan/input"
+        in_file = "intermediate_files/phylophlan/input",
         phylo_diversity = config['phylo_diversity']
     threads: THREADS
     message: 'Executing PhyloPhlAn to generate a phylogenetic tree.'
