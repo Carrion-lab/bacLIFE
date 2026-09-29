@@ -15,7 +15,6 @@ MCL_INFLATION = config['mcl_inflation_value']
 LINCLUST_IDENTITY = config['linclust_identity']
 MIBIG_VERSION = config['MIBiG_version']
 GCF_CUTOFF = config['GCF_cutoff']
-PHYLO_DIVERSITY = config['phylo_diversity']
 
 GENBANKFILES, = glob_wildcards("intermediate_files/annot/{genome}.gbff")
 NEWTAGFILE = "intermediate_files/combined_proteins/id2tags.tsv"
@@ -54,8 +53,7 @@ rule final:
             antismash = expand('intermediate_files/antismash/{genus}_{species}_{str}_{replicon}/{genus}_{species}_{str}_{replicon}.gbk', zip, genus = GENUS, species = SPECIES, str = STR, replicon = REPLICON),
             bigscape = BIGSCAPE,
             binary_table_GCF = 'intermediate_files/BiG-SCAPE/big_scape_binary_table.txt',
-            rename_matrix = 'MEGAMATRIX_renamed.txt',
-            phylophlan = "intermediate_files/phylophlan/output_phylophlan/RAxML_bestTree.input_refined.tre"
+            rename_matrix = 'MEGAMATRIX_renamed.txt'
             
 rule directories:
         input:
@@ -363,29 +361,3 @@ rule rename_MEGAMATRIX:
     message: 'Renaming MEGAMATRIX and binary table with gene names and GCF.'
     run:
         shell('Rscript src/rename_MEGAMATRIX.R {input.genes} {input.BGCs} {params} {output.genes} {output.BGCs} {output.mapping_file}')
-        
-
-rule phylophlan:
-    input:
-        config = "src/supermatrix_aa.cfg",
-        to_order= rules.extract_binary_table_GCF.output.binary_matrix
-    params:
-        database = config['phylo_database'],
-        in_file = "intermediate_files/phylophlan/input",
-        phylo_diversity = config['phylo_diversity']
-    threads: THREADS
-    message: 'Executing PhyloPhlAn to generate a phylogenetic tree.'
-    output:
-        out_tree = "intermediate_files/phylophlan/output_phylophlan/RAxML_bestTree.input_refined.tre",
-        #out_dir = "intermediate_files/phylophlan/output_phylophlan"
-    log: "log/phylophlan.log"
-    run:
-        shell("rm -rf intermediate_files/phylophlan/output_phylophlan/ intermediate_files/phylophlan/input/")
-        shell("mkdir -p intermediate_files/phylophlan/")
-        shell("mkdir -p intermediate_files/phylophlan/input/")
-        shell("mkdir -p intermediate_files/phylophlan/output_phylophlan/")
-        shell("cp -r intermediate_files/annot/*/*O.faa intermediate_files/phylophlan/input/")
-        shell("phylophlan -i {params.in_file} -d {params.database} --diversity {params.phylo_diversity} -f {input.config} --nproc {THREADS} --output_folder intermediate_files/phylophlan/output_phylophlan/ --databases_folder src/phylophlan_db")
-        shell("mv intermediate_files/phylophlan/output_phylophlan/input_{params.database}/* intermediate_files/phylophlan/output_phylophlan/")
-        shell("rm -r intermediate_files/phylophlan/output_phylophlan/input_{params.database}")
-       

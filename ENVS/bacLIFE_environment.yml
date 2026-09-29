@@ -32,7 +32,6 @@ dependencies:
     - r-randomforest
     - r-dbi
     - r-rsqlite
-    - phylophlan
     - eggnog-mapper
     - scikit-learn
 

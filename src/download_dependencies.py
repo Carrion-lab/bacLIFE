@@ -48,38 +48,3 @@ os.system ('conda run -n bacLIFE_environment_BAKTA bakta_db download --output ./
 #Download DBCAN
 
 os.system('wget https://pro.unl.edu/dbCAN2/download_file.php?file=dbCAN-HMMdb-V14.txt --no-check-certificate -O ./databases/DBCAN/dbCAN-HMMdb-V14.txt')
-
-##Phylophlan
-
-import json
-with open('config.json', 'r') as config_file:
-    config_data = json.load(config_file)
-
-phylo_database_value = config_data["phylo_database"]
-
-cmd = "wget http://cmprod1.cibio.unitn.it/databases/PhyloPhlAn/%s.tar" % phylo_database_value
-os.system(cmd)
-cmd = "wget http://cmprod1.cibio.unitn.it/databases/PhyloPhlAn/%s.md5" % phylo_database_value
-os.system(cmd)
-
-
-os.system("mkdir -p src/phylophlan_db/")
-
-cmd = "mv %s.tar src/phylophlan_db/%s.tar" % (phylo_database_value, phylo_database_value)
-os.system(cmd)
-
-
-cmd = "mv %s.md5 src/phylophlan_db/%s.md5" % (phylo_database_value, phylo_database_value)
-os.system(cmd)
-
-cmd = "phylophlan_write_default_configs.sh"
-os.system(cmd)
-
-cmd = "mv super* src/"
-os.system(cmd)
-
-
-
-
-
-
