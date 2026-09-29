@@ -301,7 +301,7 @@ rule antismash:
         shell:
             """
             rm -rf {params.out_dir}
-            antismash --cpus {THREADS_antismash} --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --no-zip-output --genefinding-tool prodigal {input}
+            antismash --cpus {THREADS_antismash} --cb-general --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --no-zip-output --genefinding-tool prodigal {input}
             """
 
 
