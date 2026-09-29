@@ -213,7 +213,7 @@ rule pfam:
             rules.clustering.output.fasta
     output:
             pfam = PFAM_ANNOTATION
-    threads: 1        
+    threads: THREADS     
     message: 'executing pfam.'
     run:
         shell('hmmsearch --tblout {output.pfam} --cpu {THREADS} -E 1e-5 ./databases/PFAM/Pfam-A.hmm {input}')
@@ -301,7 +301,7 @@ rule antismash:
         shell:
             """
             rm -rf {params.out_dir}
-            antismash --cpus {THREADS_antismash} --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --no-zip-output --genefinding-tool prodigal --smcog-trees {input}
+            antismash --cpus {THREADS_antismash} --cb-general --cb-knownclusters --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --no-zip-output --genefinding-tool prodigal {input}
             """
 
 
