@@ -43,6 +43,8 @@ os.system('tar -xvf ./databases/mapper_data/eggnog.taxa.tar -C ./databases/mappe
 
 #Download Bakta
 
+print("Downloading BAKTA database. This may take a while depending on your internet connection. Please be patient.")
+
 os.system("bash -ic 'conda run -n bacLIFE_environment_BAKTA bakta_db download --output ./databases/BAKTA --type full'")
 
 #Download DBCAN
