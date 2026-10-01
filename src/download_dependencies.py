@@ -40,7 +40,6 @@ os.system('wget -P ./databases/mapper_data/ http://eggnog5.embl.de/download/emap
 os.system('gunzip ./databases/mapper_data/*.gz')
 
 os.system('tar -xvf ./databases/mapper_data/eggnog.taxa.tar -C ./databases/mapper_data/')
-os.system('download_eggnog_data.py -y --data_dir databases/mapper_data')
 
 #Download Bakta
 
