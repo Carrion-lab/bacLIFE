@@ -32,6 +32,6 @@ dependencies:
     - r-randomforest
     - r-dbi
     - r-rsqlite
-    - eggnog-mapper
+    - eggnog-mapper==2.1.15
     - scikit-learn
 

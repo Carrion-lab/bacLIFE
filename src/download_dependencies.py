@@ -29,17 +29,7 @@ os.system('hmmpress databases/PFAM/Pfam-A.hmm')
 
 #Download EGGNOG
 
-#os.system('download_eggnog_data.py -y --data_dir databases/mapper_data') broken for now
-
-os.system('wget -P ./databases/mapper_data/ http://eggnog6.embl.de/download/emapperdb-5.0.2/eggnog.db.gz')
-
-os.system('wget -P ./databases/mapper_data/ http://eggnog6.embl.de/download/emapperdb-5.0.2/eggnog.taxa.tar.gz')
-
-os.system('wget -P ./databases/mapper_data/ http://eggnog6.embl.de/download/emapperdb-5.0.2/eggnog_proteins.dmnd.gz')
-
-os.system('gunzip ./databases/mapper_data/*.gz')
-
-os.system('tar -xvf ./databases/mapper_data/eggnog.taxa.tar -C ./databases/mapper_data/')
+os.system('download_eggnog_data.py -y --data_dir databases/mapper_data')
 
 #Download Bakta
 
