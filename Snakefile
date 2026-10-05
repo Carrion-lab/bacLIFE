@@ -87,7 +87,7 @@ rule BAKTA_annotation:
         threads: THREADS_bakta
         priority: 100
         run:
-            shell('bakta --force --output {params.outdir} --prefix {params.prefix} --locus-tag {params.str} --locus-tag-increment 5 --genus {params.genus} --species {params.species} --str {params.str} --threads {THREADS_bakta} --db ./databases/BAKTA/db --skip-plot --skip-sorf {input.file}')
+            shell('bakta --force --output {params.outdir} --prefix {params.prefix} --locus-tag {params.str} --locus-tag-increment 5 --skip-trna --skip-tmrna --skip-rrna --skip-ncrna --skip-ncrna-region --skip-crispr --skip-ori --skip-gap --skip-pseudo --genus {params.genus} --species {params.species} --str {params.str} --threads {THREADS_bakta} --db ./databases/BAKTA/db --skip-plot --skip-sorf {input.file}')
 
 rule extract_proteins:
     input: rules.BAKTA_annotation.output.bakta
@@ -216,7 +216,7 @@ rule pfam:
     threads: THREADS     
     message: 'executing pfam.'
     run:
-        shell('hmmsearch --tblout {output.pfam} --cpu {THREADS} -E 1e-5 ./databases/PFAM/Pfam-A.hmm {input}')
+        shell('hmmsearch --tblout {output.pfam} --cpu {THREADS} --noali -E 1e-5 ./databases/PFAM/Pfam-A.hmm {input}')
 
 rule EGGNOG:
     input:
@@ -255,7 +255,7 @@ rule dbCAN:
         output:
                 dbcan = DBCAN_ANNOTATION
         run:
-            shell('hmmsearch --tblout {output} -E 1e-5 --cpu {THREADS} ./databases/DBCAN/dbCAN-HMMdb-V14.txt {input}')
+            shell('hmmsearch --tblout {output} --cpu {THREADS} --noali -E 1e-5 ./databases/DBCAN/dbCAN-HMMdb-V14.txt {input}')
 
 rule process_hmm_annotations:
     input:
@@ -302,6 +302,11 @@ rule antismash:
             """
             rm -rf {params.out_dir}
             antismash --cpus {THREADS_antismash} --cb-general --cb-subclusters --output-dir {params.out_dir} --asf --pfam2go --no-zip-output --genefinding-tool prodigal {input}
+            rm -r {params.out_dir}images
+            zip -r {params.out_dir}subclusterblast.zip {params.out_dir}subclusterblast
+            rm -r {params.out_dir}subclusterblast
+            zip -r {params.out_dir}clusterblast.zip {params.out_dir}clusterblast
+            rm -r {params.out_dir}clusterblast
             """
 
 

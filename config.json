@@ -1,5 +1,5 @@
 {
-    "threads" : 32,
+    "threads" : 24,
     "mcl_inflation_value": 3.0,
     "linclust_identity": 0.95,
     "threads_bakta": 1,

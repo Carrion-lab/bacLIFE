@@ -4,3 +4,4 @@ channels:
   - bioconda
 dependencies:
   - bigscape=2.0.3
+  - sqlalchemy=2.0.48

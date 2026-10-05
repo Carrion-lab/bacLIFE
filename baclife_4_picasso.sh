@@ -8,10 +8,10 @@
 #SBATCH --ntasks=1
 
 # Number of desired cpus (all in same node):
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=24
 
 # Amount of RAM needed for this job:
-#SBATCH --mem=430gb
+#SBATCH --mem=180gb
 
 # The available nodes are: 
 #     AMD nodes with 256 cores and 683GB of usable RAM
@@ -49,4 +49,4 @@ source ~/.bashrc
 
 conda activate bacLIFE_environment 
 
-snakemake -j 128 --use-conda  
+snakemake -j 24 --use-conda  

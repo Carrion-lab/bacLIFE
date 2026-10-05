@@ -40,7 +40,7 @@ ui <- navbarPage("bacLIFE", theme = shinytheme("flatly"),
                  tabPanel('INTRODUCTION',
                           sidebarLayout(position = 'left',
                                         sidebarPanel(width = 3,p('Authors: Guillermo Guerrero, Kevin Bretscher & Victor Carrion'),
-                                                     p('Version: 1.2.0, GitHub: https://github.com/CarrionLab/bacLIFE'),
+                                                     p('Version: 1.2.2, GitHub: https://github.com/CarrionLab/bacLIFE'),
                                                      p('Instituto de Hortofruticultura Subtropical y Mediterránea (IHSM)'),
                                                      p('Universidad de Malaga (UMA)'),
                                                      p('Institute of Biology Leiden (IBL)'),
@@ -529,7 +529,7 @@ server <- function(input, output){
   },  deleteFile = F)
   
   output$image2.1 <- renderImage({
-    list(src='www/UMA.png', height = '100px', width = '400px')
+    list(src='www/UMA.jpg', height = '100px', width = '400px')
   },  deleteFile = F)
   
   output$image2.2 <- renderImage({
